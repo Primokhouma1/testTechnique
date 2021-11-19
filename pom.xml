@@ -12,6 +12,7 @@
     <artifactId>online-payment-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>online-payment-service</name>
+    <packaging>jar</packaging>
     <description>online-payment-service</description>
     <properties>
         <java.version>11</java.version>
@@ -47,6 +48,19 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--SWAGGER 2-->
+        <!--        https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <!--SWAGGER 2-->
     </dependencies>
 
     <build>
@@ -62,6 +76,17 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>online_payment_service</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

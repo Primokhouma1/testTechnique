@@ -1,11 +1,11 @@
-package tech.bgdigital.online.payment.config.http.orabank;
+package tech.bgdigital.online.payment.config.manager.orabank;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tech.bgdigital.online.payment.services.http.orabank.OraBankService;
-import tech.bgdigital.online.payment.services.http.orabank.OraBankServiceInterface;
+import tech.bgdigital.online.payment.services.manager.orabank.OraBankService;
+import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
 
 @Configuration
 @ConditionalOnClass(OraBankServiceInterface.class)

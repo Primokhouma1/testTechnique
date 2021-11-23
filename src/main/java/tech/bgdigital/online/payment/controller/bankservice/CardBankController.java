@@ -1,6 +1,7 @@
 package tech.bgdigital.online.payment.controller.bankservice;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInter
 import java.util.Map;
 
 @RestController
-@Api(value = "Paiement Par Carte Bancaire")
+@Api(tags = "Paiement Par Carte Bancaire",description = ".")
 public class CardBankController {
     final
     HttpResponseApiInterface httpResponseApi;
@@ -23,6 +24,7 @@ public class CardBankController {
     }
 
     @PostMapping(value = "debit")
+    @ApiOperation(value = "Cette methode permet de débiter une carte visa ou master card d'un client.")
     public ResponseEntity<Map<String, Object>> debitCard(@RequestBody CardDebitIn cardDebitIn){
         return new ResponseEntity<>(httpResponseApi.response(cardDebitIn, HttpStatus.OK, false, ""), HttpStatus.OK);
     }

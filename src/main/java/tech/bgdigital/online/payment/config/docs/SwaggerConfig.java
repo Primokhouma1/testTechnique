@@ -10,10 +10,10 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
+//doc https://www.baeldung.com/spring-boot-swagger-jwt
+//doc https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
 @Configuration
 public class SwaggerConfig {
 

@@ -9,6 +9,8 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,7 +19,10 @@ public class SwaggerConfig {
 
     @Bean
     public Docket api() {
-
+        List<SecurityScheme> apiKeys = new ArrayList<SecurityScheme>();
+          apiKeys.add(apiKey());
+          apiKeys.add(secreteKey());
+          apiKeys.add(bearerJwt());
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("tech.bgdigital.online.payment"))
@@ -25,6 +30,7 @@ public class SwaggerConfig {
                 .build()
                 .securityContexts(Collections.singletonList(securityContext()))
                 .securitySchemes(Collections.singletonList(apiKey()))
+                .securitySchemes(apiKeys)
                 .apiInfo(apiInfo());
     }
 
@@ -38,8 +44,14 @@ public class SwaggerConfig {
                 "License of API", "API license URL", Collections.emptyList());
     }
 
-    private ApiKey apiKey() {
+    private ApiKey bearerJwt() {
         return new ApiKey("JWT", "Authorization", "header");
+    }
+    private ApiKey apiKey() {
+        return new ApiKey("Application Key", "app-key", "header");
+    }
+    private ApiKey secreteKey() {
+        return new ApiKey("Secrete Key", "secrete-key", "header");
     }
 
     private SecurityContext securityContext() {

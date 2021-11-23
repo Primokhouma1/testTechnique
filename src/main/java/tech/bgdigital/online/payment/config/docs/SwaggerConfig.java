@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 //doc https://www.baeldung.com/spring-boot-swagger-jwt
 //doc https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
+//doc https://www.javainuse.com/spring/boot_swagger_annotations
 @Configuration
 public class SwaggerConfig {
 
@@ -62,7 +63,11 @@ public class SwaggerConfig {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Collections.singletonList(new SecurityReference("JWT", authorizationScopes));
+        List<SecurityReference> securityReferences = new ArrayList<SecurityReference>();
+        securityReferences.add(new SecurityReference("JWT", authorizationScopes));
+        securityReferences.add(new SecurityReference("Application Key", authorizationScopes));
+        securityReferences.add(new SecurityReference("Secrete Key", authorizationScopes));
+        return securityReferences;
     }
 
 }

@@ -9,7 +9,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class OnlinePaymentServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OnlinePaymentServiceApplication.class, args);
+
+        SpringApplication.run(OnlinePaymentServiceApplication.class, args
+        );
+        System.out.println("|||||||||||||||||||||||||||||||||||||||||||||||||||-----SERVER-------||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+        System.out.println("|||                 Documentation => http://localhost:8080/swagger-ui.html ||| API HOME http://localhost:8080                     |||");
+        System.out.println("|||||||||||||||||||||||||||||||||||||||||||||||||||-----SERVER-------||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
     }
 
 }

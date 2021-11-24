@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tech.bgdigital.online.payment.services.manager.orabank.OraBankService;
+import tech.bgdigital.online.payment.services.manager.orabank.OraBankManager;
 import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
 
 @Configuration
@@ -12,7 +12,7 @@ import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInte
 public class OraBankAutoConfig {
     @Bean
     @ConditionalOnMissingBean
-    OraBankServiceInterface oraBankService(){
-        return new OraBankService();
+    OraBankServiceInterface oraBankManager(){
+        return new OraBankManager();
     }
 }

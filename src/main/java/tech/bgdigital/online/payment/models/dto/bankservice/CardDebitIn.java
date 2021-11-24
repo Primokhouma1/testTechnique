@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class CardDebitIn {
     public String service;
     public BigDecimal amount;
+    public String callBackUrl;
     public String customerFirstName;
     public String customerLastName;
     public String customerAddress;

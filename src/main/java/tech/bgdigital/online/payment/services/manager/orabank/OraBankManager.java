@@ -19,15 +19,15 @@ import java.util.Date;
 
 public class OraBankManager implements OraBankServiceInterface {
 
-   @Autowired PartnerRepository partnerRepository;
-   @Autowired
-   ServiceRepository serviceRepository;
+    @Autowired
+    PartnerRepository partnerRepository;
+    @Autowired
+    ServiceRepository serviceRepository;
     @Autowired
     TarifFraiRepository tarifFraiRepository;
     public static String APP_KEY ="app-key";
     public static String SECRETE_KEY ="secrete-key";
     public static String SERVICE_CODE ="ORA_BANK_CARD";
-
     public ResponseApi<Object> debitCard(CardDebitIn cardDebitIn, HttpServletRequest request){
         ResponseApi<Object>  responseApi = new ResponseApi<Object>();
         responseApi.message= "Transaction initié avec Succès. Valider l'authentification 3DS";
@@ -110,11 +110,40 @@ public class OraBankManager implements OraBankServiceInterface {
         transaction.setTypeOperation("CREDIT");
         transaction.setPartners(partner);
         transaction.setServices(service);
+        //todo save transaction
+        //todo call paymentRequest
+        //todo set Transaction item
 
         return transaction;
     }
     public Transaction finishTransaction(){
         return new Transaction();
+    }
+    public Object handleDebit(){
+        return  "";
+    }
+    public String getTokenOraBank(){
+        return  "token";
+    }
+    public Object paymentRequest(){
+        return "";
+    }
+    class responsePaymentRequest{
+        public String paymentId;
+        public String orderReference;
+        public String outletId;
+        public String acsUrl;
+        public String acsPaReq;
+        public String acsMd;
+        public String summaryText;
+        public String url3dsValidation;
+        public String urlSelf;
+        public String paymentMethodExpiry;
+        public String paymentMethodCardholderName;
+        public String paymentMethodName;
+        public String paymentMethodPan;
+
+
     }
 
 

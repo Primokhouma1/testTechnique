@@ -5,4 +5,5 @@ import tech.bgdigital.online.payment.services.properties.Environment;
 
 @EnableConfigurationProperties(Environment.class)
 public class EnvironmentAutoConfig {
+
 }

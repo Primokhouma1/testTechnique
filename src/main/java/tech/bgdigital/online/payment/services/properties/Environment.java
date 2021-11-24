@@ -1,7 +1,9 @@
 package tech.bgdigital.online.payment.services.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 @ConfigurationProperties("env")
+@Component
 public class Environment {
     public String oraUrlBase;
     public String oraAppKey;

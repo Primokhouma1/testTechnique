@@ -14,6 +14,8 @@ import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
+import java.util.Date;
 
 public class OraBankManager implements OraBankServiceInterface {
 
@@ -38,13 +40,14 @@ public class OraBankManager implements OraBankServiceInterface {
             responseApi.error = true;
             responseApi.data = "";
         }else {
-            responseApi.data = partner;
+            responseApi.data = this.initTransaction(cardDebitIn,partner);
         }
         return responseApi;
     }
     public Partner getPartner(HttpServletRequest request){
        return partnerRepository.findByAppKeyAndSecreteKey(request.getHeader(OraBankManager.APP_KEY), request.getHeader(OraBankManager.SECRETE_KEY));
     }
+    //https://www.tutorialspoint.com/java/math/bigdecimal_divide_rdroundingmode_scale.htm
     public Transaction initTransaction(CardDebitIn cardDebitIn,Partner partner){
         Service service = serviceRepository.findByCode(OraBankManager.SERVICE_CODE);
         TarifFrai tarifFrai = tarifFraiRepository.findByServicesAndPartners(service,partner);
@@ -54,10 +57,59 @@ public class OraBankManager implements OraBankServiceInterface {
         transaction.setCallbackUrl(cardDebitIn.callBackUrl);
         transaction.setCallbackJson("");//todo set data callback json
         transaction.setCallbackSended(false);
+        /*Set Platform Val*/
         transaction.setCommAmountFixePlateform( tarifFrai.getFeeFixedPartner().subtract(service.getCommFixePsp()) );
         transaction.setCommAmountPercentPlateform(
-                cardDebitIn.amount.multiply(tarifFrai.getFeePercentPartner(),new MathContext(4)).divide(new BigDecimal(100))
+                cardDebitIn
+                        .amount
+                        .multiply(tarifFrai.getFeePercentPartner().subtract(service.getCommPercentPsp()),new MathContext(4))
+                        .divide(new BigDecimal("100.0"),4, RoundingMode.CEILING)
         );
+        transaction.setCommPercentPlateform( tarifFrai.getFeePercentPartner().subtract(service.getCommPercentPsp()) );
+        transaction.setPartAmountPlateform(
+                transaction.getCommAmountFixePlateform()
+                                .add( transaction.getCommAmountPercentPlateform())
+        );
+        /*Set PSP Val*/
+        transaction.setCommAmountFixePsp( service.getCommFixePsp() );
+        transaction.setCommAmountPercentPsp(
+                cardDebitIn.amount
+                        .multiply(service.getCommPercentPsp())
+                        .divide(new BigDecimal("100.0"),4, RoundingMode.CEILING)
+        );
+        transaction.setCommPercentPsp( service.getCommPercentPsp() );
+        transaction.setPartAmountPsp(
+                transaction.getCommAmountFixePsp()
+                                .add( transaction.getCommAmountPercentPsp())
+        );
+
+        /*Set PARTNER Val*/
+        transaction.setFeeAmountFixePartener( tarifFrai.getFeeFixedPartner() );
+        transaction.setFeeAmountPercentPartner(
+                cardDebitIn.amount
+                        .multiply(tarifFrai.getFeePercentPartner())
+                        .divide(new BigDecimal("100.0"),4, RoundingMode.CEILING)
+        );
+        transaction.setFeePercentPartner( tarifFrai.getFeePercentPartner() );
+        transaction.setPartAmountPartner(
+                cardDebitIn
+                        .amount
+                        .subtract(transaction.getFeeAmountFixePartener()
+                                .add( transaction.getFeeAmountPercentPartner()))
+        );
+        transaction.setCreatedAt(new Date());
+        transaction.setUpdatedAt(new Date());
+        transaction.setPartenerTrxRef("");//todo change generated
+        transaction.setTrxRef("");//todo generated
+        transaction.setPartnerName(partner.getName());
+        transaction.setRequestJson("");//set request json;
+        transaction.setServiceCode(service.getCode());
+        transaction.setServiceName(service.getName());
+        transaction.setState("ACTIVE");
+        transaction.setStatus("PENDING");
+        transaction.setTypeOperation("CREDIT");
+        transaction.setPartners(partner);
+        transaction.setServices(service);
 
         return transaction;
     }

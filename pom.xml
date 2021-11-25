@@ -68,6 +68,13 @@
             <version>1.4.9</version>
         </dependency>
         <!--UNI REST 2-->
+
+        <!--VALIDATION-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!--VALIDATION-->
     </dependencies>
 
     <build>

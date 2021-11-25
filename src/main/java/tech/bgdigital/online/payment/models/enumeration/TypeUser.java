@@ -1,5 +1,6 @@
 package tech.bgdigital.online.payment.models.enumeration;
 
-public enum TypeUser {
-    BACKOFFICE,PARTENER;
+public class TypeUser {
+   public final static String BACKOFFICE="BACKOFFICE";
+   public final static String PARTENER="PARTENER";
 }

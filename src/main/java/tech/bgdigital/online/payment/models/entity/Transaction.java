@@ -30,6 +30,19 @@ public class Transaction {
 
     @Column(name = "service_name", nullable = false)
     private String serviceName;
+    //set cllient infos
+    @Column(name = "customer_card_expiry", nullable = true)
+    private String customerCardExpiry;
+
+    @Column(name = "customer_card_cardholder_name", nullable = true)
+    private String customerCardCardholderName;
+
+    @Column(name = "customer_card_type", nullable = true)
+    private String customerCardType;
+
+    @Column(name = "customer_card_pan", nullable = true)
+    private String customerCardPan;
+    //set cllient infos
 
     @Lob
     @Column(name = "status", nullable = false)
@@ -460,5 +473,37 @@ public class Transaction {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getCustomerCardExpiry() {
+        return customerCardExpiry;
+    }
+
+    public void setCustomerCardExpiry(String customerCardExpiry) {
+        this.customerCardExpiry = customerCardExpiry;
+    }
+
+    public String getCustomerCardCardholderName() {
+        return customerCardCardholderName;
+    }
+
+    public void setCustomerCardCardholderName(String customerCardCardholderName) {
+        this.customerCardCardholderName = customerCardCardholderName;
+    }
+
+    public String getCustomerCardType() {
+        return customerCardType;
+    }
+
+    public void setCustomerCardType(String customerCardType) {
+        this.customerCardType = customerCardType;
+    }
+
+    public String getCustomerCardPan() {
+        return customerCardPan;
+    }
+
+    public void setCustomerCardPan(String customerCardPan) {
+        this.customerCardPan = customerCardPan;
     }
 }

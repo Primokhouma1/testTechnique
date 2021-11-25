@@ -48,20 +48,4 @@ public class CardBankController {
         return new ResponseEntity<>(httpResponseApi.response(responseApi.data, responseApi.code, responseApi.error, responseApi.message), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "3ds/{token}/validation-request",method = RequestMethod.GET)
-    void index(@PathVariable("token") String token, HttpServletResponse httpServletResponse){
-
-            httpServletResponse.setHeader("Location","URL 3D SECURE");
-            httpServletResponse.setStatus(302);
-      //  }else {
-       //     httpServletResponse.setHeader("Location", "/not-foud/404");
-      //      httpServletResponse.setStatus(302);
-     //   }
-
-    }
-
-    @RequestMapping(value = "3ds-token-wworking//404",method = RequestMethod.GET)
-    String redirectTokenNotWorking( HttpServletResponse httpServletResponse){
-        return "404";
-    }
 }

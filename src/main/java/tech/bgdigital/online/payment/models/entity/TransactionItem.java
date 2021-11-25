@@ -8,6 +8,16 @@ import java.util.Date;
 })
 @Entity
 public class TransactionItem {
+    public TransactionItem() {
+    }
+    public TransactionItem(String name, String value, Transaction transactions) {
+        this.name = name;
+        this.value = value;
+        this.transactions = transactions;
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

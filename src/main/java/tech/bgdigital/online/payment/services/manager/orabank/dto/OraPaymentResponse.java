@@ -31,4 +31,7 @@ public class OraPaymentResponse {
     @JsonProperty("3ds")
     public Ora3ds ora3ds = new Ora3ds();
 
+    @JsonProperty("authResponse")
+    public AuthResponse authResponse = new AuthResponse();
+
 }

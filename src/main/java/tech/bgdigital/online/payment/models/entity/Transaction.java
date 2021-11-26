@@ -144,16 +144,28 @@ public class Transaction {
     private String callbackJson;
 
     @Column(name = "callback_sented_at")
-    private Instant callbackSentedAt;
+    private Date callbackSentedAt;
 
     @Column(name = "callback_failed_at")
-    private Instant callbackFailedAt;
+    private Date callbackFailedAt;
 
     @Column(name = "call_back_retry_number")
     private Integer callBackRetryNumber;
 
     @Column(name = "callback_sended")
     private Boolean callbackSended;
+
+    @Lob
+    @Column(name = "redirect_url")
+    private String redirectUrl;
+
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
 
     public Boolean getCallbackSended() {
         return callbackSended;
@@ -171,19 +183,19 @@ public class Transaction {
         this.callBackRetryNumber = callBackRetryNumber;
     }
 
-    public Instant getCallbackFailedAt() {
+    public Date getCallbackFailedAt() {
         return callbackFailedAt;
     }
 
-    public void setCallbackFailedAt(Instant callbackFailedAt) {
+    public void setCallbackFailedAt(Date callbackFailedAt) {
         this.callbackFailedAt = callbackFailedAt;
     }
 
-    public Instant getCallbackSentedAt() {
+    public Date getCallbackSentedAt() {
         return callbackSentedAt;
     }
 
-    public void setCallbackSentedAt(Instant callbackSentedAt) {
+    public void setCallbackSentedAt(Date callbackSentedAt) {
         this.callbackSentedAt = callbackSentedAt;
     }
 

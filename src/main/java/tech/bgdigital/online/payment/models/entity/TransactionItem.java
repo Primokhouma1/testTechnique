@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Table(name = "transaction_items", indexes = {
+        @Index(name = "transaction_id_name_UNIQUE", columnList = "transactions_id, name", unique = true),
         @Index(name = "fk_transaction_items_transactions1_idx", columnList = "transactions_id")
 })
 @Entity

@@ -6,16 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
 import tech.bgdigital.online.payment.models.entity.Transaction;
+import tech.bgdigital.online.payment.models.entity.TransactionItem;
+import tech.bgdigital.online.payment.models.repository.TransactionItemRepository;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.LoginOraOut;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentOrder;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
 @Component
 public class OraBankIntegration {
     @Autowired
     Environment environment;
+    @Autowired
+    TransactionItemRepository transactionItemRepository;
     ObjectMapper objectMapper = new ObjectMapper();
     public InternalResponse<LoginOraOut> login() {
         try {
@@ -54,7 +56,11 @@ public class OraBankIntegration {
             oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
             oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
             oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
-            String token = login().response.accessToken;
+            InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
+            String token = loginOraOutInternalResponse.response.accessToken;
+            if(loginOraOutInternalResponse.error){
+                  return new InternalResponse<>(null, true, loginOraOutInternalResponse.message);
+            }
             HttpResponse<String> response = Unirest.post(environment.oraBaseUrl + "/transactions/outlets/"+ environment.oraRefPointVente +"/payment/card")
                     .header("Content-Type", "application/vnd.ni-payment.v2+json")
                    // .header("Accept", "application/vnd.ni-payment.v2+json")
@@ -67,6 +73,52 @@ public class OraBankIntegration {
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
             System.out.println("Error Payment");
+            e.printStackTrace();
+            return new InternalResponse<>(null, true, e.getMessage());
+        }
+
+    }
+    public InternalResponse<OraPaymentResponse> validation3dsApi(Response3dsAuth response3dsAuth,Transaction transaction) {
+        try {
+            InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
+            String token = loginOraOutInternalResponse.response.accessToken;
+            if(loginOraOutInternalResponse.error){
+                  return new InternalResponse<>(null, true, loginOraOutInternalResponse.message);
+            }
+            TransactionItem oraCnp3dsUrlNameValue = transactionItemRepository.findByNameAndTransactions(environment.oraCnp3dsUrlName,transaction);
+            if(oraCnp3dsUrlNameValue ==null){
+                return new InternalResponse<>(null, true, "Url de validation non valide");
+            }
+            HttpResponse<String> response = Unirest.post(oraCnp3dsUrlNameValue.getValue())
+                    .header("Content-Type", "application/vnd.ni-payment.v2+json")
+                   // .header("Accept", "application/vnd.ni-payment.v2+json")
+                    .header("Authorization", "Bearer "+  token)
+                    .body(objectMapper.writeValueAsString( response3dsAuth))
+                    .asString();
+            //System.out.println("token =>" + token);
+            System.out.println("oraValidationResponse +>" + response.getBody());
+            OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
+            return new InternalResponse<>(oraPaymentResponse, false, "");
+        } catch (Exception e) {
+            System.out.println("Error Validation");
+            e.printStackTrace();
+            return new InternalResponse<>(null, true, e.getMessage());
+        }
+
+    }
+    public InternalResponse<CallbackPartnerResponse> callBackSend(Transaction transaction) {
+        try {
+            CallbackPartnerRequest callbackPartnerRequest = new CallbackPartnerRequest();
+            HttpResponse<String> response = Unirest.post(transaction.getCallbackUrl())
+                    .header("Content-Type", "application/json")
+                    .body(objectMapper.writeValueAsString( callbackPartnerRequest))
+                    .asString();
+            //System.out.println("token =>" + token);
+            System.out.println("oraValidationResponse +>" + response.getBody());
+            CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
+            return new InternalResponse<>(callbackPartnerResponse, false, "Callback sent successful");
+        } catch (Exception e) {
+            System.out.println("Error Validation");
             e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }

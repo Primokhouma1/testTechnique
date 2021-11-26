@@ -11,8 +11,10 @@ import tech.bgdigital.online.payment.models.repository.*;
 import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +50,7 @@ public class OraBankManager implements OraBankServiceInterface {
         responseApi.message= "Transaction initié avec Succès. Valider l'authentification 3DS";
         responseApi.code = 200;
         responseApi.error = false;
+        responseApi.data = new Object();
         Partner partner = this.getPartner(request);
         if(partner== null){
             responseApi.code = 403;
@@ -61,13 +64,14 @@ public class OraBankManager implements OraBankServiceInterface {
                 responseApi.message= responseInit.message;
                 responseApi.error = true;
                 responseApi.data = "";
+                this.finishTransaction(responseInit.response);
             }else {
                 Transaction transaction = responseInit.response;
                 Map<String, String> response = new HashMap<>();
                 response.put("status",transaction.getStatus());
                 response.put("transactionID",transaction.getTrxRef());
                 response.put("transactionNumber",transaction.getPartenerTrxRef());
-                response.put("3dsUrl",environment.platformUrl + "/payment/card-redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
+                response.put("3dsUrl",environment.platformUrl + "/payment/card/redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
                 responseApi.data = response;
             }
 
@@ -86,6 +90,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setAmountTrx(cardDebitIn.amount);
             transaction.setCallBackRetryNumber(0);
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
+            transaction.setRedirectUrl(cardDebitIn.redirectUrl);
           //  transaction.setCallbackJson("");//todo set data callback json
             transaction.setCallbackSended(false);
             /*Set Platform Val*/
@@ -180,6 +185,7 @@ public class OraBankManager implements OraBankServiceInterface {
         if(transaction.getId() != null){
             transaction.setStatus(Status.FAILED);
             transaction.setFailedAt(new Date());
+            transaction.setMessageError("Transaction annulé");
             transactionRepository.save(transaction);
         }
         new InternalResponse<>(transaction, true, "Transaction annulé");
@@ -202,15 +208,50 @@ public class OraBankManager implements OraBankServiceInterface {
         request3DsAuth.AcsUrl = transactionItemRepository.findByNameAndTransactions(environment.oraAcsUrl,transaction).getValue();
         request3DsAuth.PaReq =transactionItemRepository.findByNameAndTransactions(environment.oraAcsPaReq,transaction).getValue();
         request3DsAuth.MD =transactionItemRepository.findByNameAndTransactions(environment.oraAcsMd,transaction).getValue();
-        request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds;
+        request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds + "/" + token;
         return request3DsAuth;
     }
-    public Transaction getTransactionBYMd(String MD){
-        TransactionItem transactionItem = transactionItemRepository.findByValueAndName(environment.oraAcsMd,MD);
+    public Transaction getTransactionBYMd(String MD,String token){
+        Transaction transaction= transactionRepository.findByTrxRef(token);
+        TransactionItem transactionItem = transactionItemRepository.findByValueAndNameAndTransactions(MD,environment.oraAcsMd,transaction);
         if(transactionItem == null){
             return  null;
         }
         return  transactionItem.getTransactions();
+    }
+
+    public Transaction validate3ds(Response3dsAuth response3dsAuth, String token){
+        Transaction transaction = this.getTransactionBYMd(response3dsAuth.MD,token);
+        InternalResponse<OraPaymentResponse> internalResponse=  oraBankIntegration.validation3dsApi(response3dsAuth,transaction);
+        if(!internalResponse.error){
+            transaction.setStatus(Status.getState(internalResponse.response.state));
+            transaction.setCallBackRetryNumber(1);
+            if(Objects.equals(transaction.getStatus(), Status.SUCCESS)){
+                transaction.setSuccessAt(new Date());
+                transactionRepository.save(transaction);
+//                InternalResponse<CallbackPartnerResponse> resCallback =  this.oraBankIntegration.callBackSend(transaction);
+//                if(!resCallback.error ){
+//                    transaction.setCallbackSentedAt(new Date());
+//                    transaction.setCallbackSended(true);
+//                    transaction.setMessageError("Transaction validé.");
+//                    transactionRepository.save(transaction);
+//                }else {
+//                    transaction.setCallbackFailedAt(new Date());
+//                    transaction.setMessageError(resCallback.message);
+//                    transactionRepository.save(transaction);
+//                }
+            }else if(Objects.equals(transaction.getStatus(), Status.FAILED)){
+                transaction.setCallbackFailedAt(new Date());
+                transactionRepository.save(transaction);
+                if(!internalResponse.response.ora3ds.status.isEmpty()){
+                    transaction.setMessageError( internalResponse.response.ora3ds.status);
+                }else {
+                    transaction.setMessageError("Failed card debit");
+                }
+                transactionRepository.save(transaction);
+            }
+        }
+        return transaction;
     }
 
 

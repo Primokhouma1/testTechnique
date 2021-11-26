@@ -1,17 +1,19 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Hospital | DashBord</title>
+    <title>ONLINE PAIEMENT | TRANSACTION VALIDATION</title>
 </head>
 <body>
 <div class="card-body">
-    <!--/*@thymesVar id="partner" type="tech.bgdigital.online.payment.models.entity.Partner"*/-->
-    <form method="post" th:object="${partner}">
+    <!--/*@thymesVar id="request3dsAuth" type="tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth"*/-->
+    <form th:action="*{AcsUrl}" th:object="${request3dsAuth}" th:method="post">
 
-        <input   th:value="*{name}"/>
+        <input  th:name="TermUrl"  th:value="*{TermUrl}"/>
+        <input  th:name="MD"  th:value="*{MD}"/>
+        <input  th:name="PaReq"  th:value="*{PaReq}"/>
 
         <div class="form-group" style="text-align: center;margin-top: 55px">
-            <input type="submit" value="S'authentifié" class="btn  login_btn">
+            <input type="submit" value="Valider 3ds" class="btn  login_btn">
         </div>
     </form>
 </div>

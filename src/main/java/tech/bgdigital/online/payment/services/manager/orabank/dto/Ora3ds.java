@@ -14,4 +14,12 @@ public class Ora3ds {
 
     @JsonProperty("summaryText")
     public String  summaryText;
+
+    @JsonProperty("status")
+    public String  status;
+
+    @JsonProperty("eci")
+    public String  eci;
+    @JsonProperty("eciDescription")
+    public String  eciDescription;
 }

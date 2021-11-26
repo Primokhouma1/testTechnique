@@ -12,6 +12,9 @@ public class OraLink {
     @JsonProperty("cnp:3ds")
     public OraUrl cnp3ds = new OraUrl();
 
+    @JsonProperty("cnp:cancel")
+    public OraUrl cnpCancel = new OraUrl();
+
     @JsonProperty("curies")
     public List<OraUrl> curies ;
 }

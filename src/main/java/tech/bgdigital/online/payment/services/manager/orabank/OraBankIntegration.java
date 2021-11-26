@@ -51,7 +51,7 @@ public class OraBankIntegration {
             oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
             oraPaymentOrder.merchantAttributes.skip3DS = false;
             oraPaymentOrder.merchantAttributes.skipConfirmationPage = false;
-            oraPaymentOrder.merchantAttributes.redirectUrl = "";
+            oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
             oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
             oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
             String token = login().response.accessToken;

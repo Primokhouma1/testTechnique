@@ -1,5 +1,7 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import tech.bgdigital.online.payment.models.enumeration.State;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -16,6 +18,7 @@ public class TransactionItem {
         this.transactions = transactions;
         this.createdAt = new Date();
         this.updatedAt = new Date();
+        this.state= State.ACTIVED;
     }
 
     @Id
@@ -40,7 +43,7 @@ public class TransactionItem {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.EAGER)
     @JoinColumn(name = "transactions_id", nullable = false)
     private Transaction transactions;
 

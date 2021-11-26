@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Hospital | DashBord</title>
+</head>
+<body>
+<div class="card-body">
+    <!--/*@thymesVar id="partner" type="tech.bgdigital.online.payment.models.entity.Partner"*/-->
+    <form method="post" th:object="${partner}">
+
+        <input   th:value="*{name}"/>
+
+        <div class="form-group" style="text-align: center;margin-top: 55px">
+            <input type="submit" value="S'authentifié" class="btn  login_btn">
+        </div>
+    </form>
+</div>
+</body>
+</html>

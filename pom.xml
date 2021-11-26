@@ -75,6 +75,13 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <!--VALIDATION-->
+
+        <!--THEAMLEAF-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!--THEAMLYF-->
     </dependencies>
 
     <build>

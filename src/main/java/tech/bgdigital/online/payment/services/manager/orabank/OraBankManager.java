@@ -1,6 +1,5 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
@@ -13,7 +12,7 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.StatusOraRestOut;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +67,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 response.put("status",transaction.getStatus());
                 response.put("transactionID",transaction.getTrxRef());
                 response.put("transactionNumber",transaction.getPartenerTrxRef());
-                response.put("3ds",environment.platformUrl + "/payment/card-redirect/3ds/" + transaction.getTrxRef() + "/validation-request"   );
+                response.put("3dsUrl",environment.platformUrl + "/payment/card-redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
                 responseApi.data = response;
             }
 
@@ -80,10 +79,10 @@ public class OraBankManager implements OraBankServiceInterface {
     }
     //https://www.tutorialspoint.com/java/math/bigdecimal_divide_rdroundingmode_scale.htm
     public InternalResponse<Transaction> initTransaction(CardDebitIn cardDebitIn, Partner partner){
+        Transaction transaction = new Transaction();
         try {
             Service service = serviceRepository.findByCode(OraBankManager.SERVICE_CODE);
             TarifFrai tarifFrai = tarifFraiRepository.findByServicesAndPartners(service,partner);
-            Transaction transaction = new Transaction();
             transaction.setAmountTrx(cardDebitIn.amount);
             transaction.setCallBackRetryNumber(0);
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
@@ -148,7 +147,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setTypeOperation(TypeOperation.CREDIT);
             transaction.setPartners(partner);
             transaction.setServices(service);
-            transactionRepository.save(transaction);
+            transaction =  transactionRepository.save(transaction);
             //todo save transaction
             //todo call paymentRequest
             OraPaymentResponse oraPaymentResponse = oraBankIntegration.payment(cardDebitIn,transaction).response;
@@ -173,11 +172,17 @@ public class OraBankManager implements OraBankServiceInterface {
             return new InternalResponse<>(transaction,false,"");
         } catch (Exception e) {
             e.printStackTrace();
-            return new InternalResponse<>(new Transaction(),false,e.getMessage());
+            finishTransaction(transaction);
+            return new InternalResponse<>(new Transaction(),true,e.getMessage());
         }
     }
-    public InternalResponse<Transaction> finishTransaction(){
-        return new InternalResponse<>();
+    public void finishTransaction(Transaction transaction){
+        if(transaction.getId() != null){
+            transaction.setStatus(Status.FAILED);
+            transaction.setFailedAt(new Date());
+            transactionRepository.save(transaction);
+        }
+        new InternalResponse<>(transaction, true, "Transaction annulé");
     }
     public Object handleDebit(){
         return  "";
@@ -188,6 +193,26 @@ public class OraBankManager implements OraBankServiceInterface {
     public Object paymentRequest(){
         return "";
     }
+    public Request3dsAuth getRequest3dsAuthentification(String token){
+        Request3dsAuth request3DsAuth = new Request3dsAuth();
+        Transaction transaction = transactionRepository.findByTrxRef(token);
+        if(transaction==null){
+            return  null;
+        }
+        request3DsAuth.AcsUrl = transactionItemRepository.findByNameAndTransactions(environment.oraAcsUrl,transaction).getValue();
+        request3DsAuth.PaReq =transactionItemRepository.findByNameAndTransactions(environment.oraAcsPaReq,transaction).getValue();
+        request3DsAuth.MD =transactionItemRepository.findByNameAndTransactions(environment.oraAcsMd,transaction).getValue();
+        request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds;
+        return request3DsAuth;
+    }
+    public Transaction getTransactionBYMd(String MD){
+        TransactionItem transactionItem = transactionItemRepository.findByValueAndName(environment.oraAcsMd,MD);
+        if(transactionItem == null){
+            return  null;
+        }
+        return  transactionItem.getTransactions();
+    }
+
 
 
 }

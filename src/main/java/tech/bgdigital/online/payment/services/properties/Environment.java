@@ -25,6 +25,6 @@ public class Environment {
     public String oraSummaryText;
     //platefom
     public String platformUrl;
-    public String oraInterceptorUrl;
+    public String oraInterceptorUrl3ds;
 
 }

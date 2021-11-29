@@ -9,6 +9,7 @@ import tech.bgdigital.online.payment.models.enumeration.Status;
 import tech.bgdigital.online.payment.models.enumeration.TypeOperation;
 import tech.bgdigital.online.payment.models.repository.*;
 import tech.bgdigital.online.payment.services.helper.generator.RandomString;
+import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
@@ -40,13 +41,16 @@ public class OraBankManager implements OraBankServiceInterface {
     TransactionItemRepository transactionItemRepository;
     @Autowired
     Environment environment;
+    @Autowired
+    ValidatorBean validatorBean;
 
     ObjectMapper objectMapper = new ObjectMapper();
     public static String APP_KEY ="app-key";
     public static String SECRETE_KEY ="secrete-key";
     public static String SERVICE_CODE ="ORA_BANK_CARD";
     public ResponseApi<Object> debitCard(CardDebitIn cardDebitIn, HttpServletRequest request){
-        ResponseApi<Object>  responseApi = new ResponseApi<Object>();
+        ResponseApi<Object>  responseApi = new ResponseApi<>();
+
         responseApi.message= "Transaction initié avec Succès. Valider l'authentification 3DS";
         responseApi.code = 200;
         responseApi.error = false;
@@ -58,6 +62,14 @@ public class OraBankManager implements OraBankServiceInterface {
             responseApi.error = true;
             responseApi.data = "";
         }else {
+            InternalResponse<Map<String,Object>> validator = validationPayment(cardDebitIn, partner);
+            if(validator.error){
+                responseApi.message= validator.message;
+                responseApi.code = 400;
+                responseApi.error = true;
+                responseApi.data = validator.response;
+                return responseApi;
+            }
             InternalResponse<Transaction> responseInit =  this.initTransaction(cardDebitIn,partner);
             if(responseInit.error){
                 responseApi.code = 403;
@@ -91,6 +103,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setCallBackRetryNumber(0);
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
             transaction.setRedirectUrl(cardDebitIn.redirectUrl);
+            transaction.setCustomerAddress(cardDebitIn.customerAddress);
           //  transaction.setCallbackJson("");//todo set data callback json
             transaction.setCallbackSended(false);
             /*Set Platform Val*/
@@ -155,26 +168,33 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction =  transactionRepository.save(transaction);
             //todo save transaction
             //todo call paymentRequest
-            OraPaymentResponse oraPaymentResponse = oraBankIntegration.payment(cardDebitIn,transaction).response;
-            transaction.setStatus(Status.getState(oraPaymentResponse.state));
-            transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
-            transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
-            transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
-            transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
-            //todo set Transaction item
-            List<TransactionItem> transactionItemList = new ArrayList<>();
-            transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraOutletIdName,oraPaymentResponse.outletId,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.id,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraCnp3dsUrlName,oraPaymentResponse.link.cnp3ds.href,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraSelfTrxUrl,oraPaymentResponse.link.self.href,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraAcsUrl,oraPaymentResponse.ora3ds.acsUrl,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraAcsPaReq,oraPaymentResponse.ora3ds.acsPaReq,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraAcsMd,oraPaymentResponse.ora3ds.acsMd,transaction));
-            transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
-            transactionItemRepository.saveAll(transactionItemList);
-            transactionRepository.save(transaction);
-            return new InternalResponse<>(transaction,false,"");
+            InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
+            OraPaymentResponse oraPaymentResponse = restApiPayement.response;
+            if(restApiPayement.error){
+                finishTransaction(transaction);
+                return new InternalResponse<>(new Transaction(),true,restApiPayement.message);
+            }else {
+                transaction.setStatus(Status.getState(oraPaymentResponse.state));
+                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
+                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
+                transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
+                transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
+                //todo set Transaction item
+                List<TransactionItem> transactionItemList = new ArrayList<>();
+                transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraOutletIdName,oraPaymentResponse.outletId,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.id,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraCnp3dsUrlName,oraPaymentResponse.link.cnp3ds.href,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraSelfTrxUrl,oraPaymentResponse.link.self.href,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraAcsUrl,oraPaymentResponse.ora3ds.acsUrl,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraAcsPaReq,oraPaymentResponse.ora3ds.acsPaReq,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraAcsMd,oraPaymentResponse.ora3ds.acsMd,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
+                transactionItemRepository.saveAll(transactionItemList);
+                transactionRepository.save(transaction);
+                return new InternalResponse<>(transaction,false,"");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             finishTransaction(transaction);
@@ -252,6 +272,53 @@ public class OraBankManager implements OraBankServiceInterface {
             }
         }
         return transaction;
+    }
+    public InternalResponse<Map<String,Object>> validationPayment(CardDebitIn cardDebitIn,Partner partner){
+        InternalResponse<Map<String, Object>> internalResponse = new InternalResponse<>();
+        Map<String, Object> validations= new HashMap<>();
+        boolean error= false;
+        if(!validatorBean.isAmount(cardDebitIn.amount)){
+            error =true;
+            validations.put("amount","Le montant doit être supérieur a 0");
+        }
+        if(!validatorBean.isSecureUrl(cardDebitIn.callBackUrl)){
+            error =true;
+            validations.put("callBackUrl","L'URL du callback n'est pas valide et il doit êttre en https");
+        }
+        if(!validatorBean.isUrl(cardDebitIn.redirectUrl)){
+            error =true;
+            validations.put("redirectUrl","L'URL de redirection n'est pas valide");
+        }
+        if(!validatorBean.isFullName(cardDebitIn.customerCardholderName)){
+            error =true;
+            validations.put("customerCardholderName","Le nom est invalide");
+        }
+        if(!validatorBean.isCvv(cardDebitIn.customerCvv)){
+            error =true;
+            validations.put("customerCvv","Le CVV  n'est pas valide. Format: 123");
+        }
+        if(!validatorBean.isExpireDate(cardDebitIn.customerExpiredCard)){
+            error =true;
+            validations.put("customerExpiredCard","La date d'expiration n'est pas valide. Format : 2030-03");
+        }
+        if(!validatorBean.isAddress(cardDebitIn.customerAddress)){
+            error =true;
+            validations.put("customerAddress","L'adresse n'est pas valide.");
+        }
+        if(!validatorBean.isPan(cardDebitIn.customerPan)){
+            error =true;
+            validations.put("customerPan","Le numéro de la carte n'est pas valide. Cartes acceptés : Visa, MasterCard, American Express, Diners Club, Discover, and JCB cards");
+        }
+        if(validatorBean.isExisteTransactionNumber(cardDebitIn.transactionNumber,partner)){
+            error =true;
+            validations.put("transactionNumber","Le numéro de transaction existe ");
+        }
+        internalResponse.error = error;
+        if(error){
+            internalResponse.message = "Paramètres non validate";
+        }
+        internalResponse.response = validations;
+        return internalResponse;
     }
 
 

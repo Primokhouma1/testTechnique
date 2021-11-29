@@ -1,5 +1,7 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -10,6 +12,7 @@ import java.util.Date;
         @Index(name = "fk_account_statement_transactions1_idx", columnList = "transactions_id")
 })
 @Entity
+@SQLDelete(sql = "update account_statements set state = 'DISABLED' where id= ?")
 public class AccountStatement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

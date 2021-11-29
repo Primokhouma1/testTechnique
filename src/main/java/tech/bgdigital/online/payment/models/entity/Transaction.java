@@ -1,12 +1,18 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 
-@Table(name = "transactions")
+@Table(name = "transactions",
+indexes = {
+        @Index(name = "partener_trx_ref_UNIQUE", columnList = "partener_trx_ref, partners_id", unique = true),
+})
 @Entity
+@SQLDelete(sql = "update transactions set state = 'DISABLED' where id= ?")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,6 +121,9 @@ public class Transaction {
     @Column(name = "partner_name")
     private String partnerName;
 
+    @Column(name = "customer_address")
+    private String customerAddress;
+
     @Lob
     @Column(name = "message_success")
     private String messageSuccess;
@@ -157,6 +166,7 @@ public class Transaction {
 
     @Lob
     @Column(name = "redirect_url")
+
     private String redirectUrl;
 
     public String getRedirectUrl() {
@@ -165,6 +175,13 @@ public class Transaction {
 
     public void setRedirectUrl(String redirectUrl) {
         this.redirectUrl = redirectUrl;
+    }
+    public String getCustomerAddress() {
+        return customerAddress;
+    }
+
+    public void setCustomerAddress(String customerAddress) {
+        this.customerAddress = customerAddress;
     }
 
     public Boolean getCallbackSended() {

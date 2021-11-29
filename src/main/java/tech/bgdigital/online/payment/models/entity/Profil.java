@@ -1,5 +1,7 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -8,6 +10,7 @@ import java.util.Date;
         @Index(name = "fk_profils_partners1_idx", columnList = "partners_id")
 })
 @Entity
+@SQLDelete(sql = "update profils set state = 'DISABLED' where id= ?")
 public class Profil {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

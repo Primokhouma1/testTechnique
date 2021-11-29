@@ -1,5 +1,6 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
 import tech.bgdigital.online.payment.models.enumeration.State;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.Date;
         @Index(name = "fk_transaction_items_transactions1_idx", columnList = "transactions_id")
 })
 @Entity
+@SQLDelete(sql = "update transaction_items set state = 'DISABLED' where id= ?")
 public class TransactionItem {
     public TransactionItem() {
     }

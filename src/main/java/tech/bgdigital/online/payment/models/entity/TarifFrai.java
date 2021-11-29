@@ -1,5 +1,7 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,6 +13,7 @@ import java.util.Date;
         @Index(name = "fk_tarif_frais_partners_idx", columnList = "partners_id")
 })
 @Entity
+@SQLDelete(sql = "update tarif_frais set state = 'DISABLED' where id= ?")
 public class TarifFrai {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

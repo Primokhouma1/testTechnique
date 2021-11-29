@@ -1,11 +1,14 @@
 package tech.bgdigital.online.payment.models.entity;
 
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
 @Table(name = "partners")
 @Entity
+@SQLDelete(sql = "update partners set state = 'DISABLED' where id= ?")
 public class Partner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

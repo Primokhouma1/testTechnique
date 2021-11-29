@@ -23,8 +23,8 @@ public class ClientTestController {
 
 }
 /*
-       {
-        "amount": 100,
+      {
+        "amount": 1500,
         "callBackUrl": "http://localhost:8080/client/callback",
         "customerAddress": "Dakar Sebegal",
         "customerCardholderName": "Pape Samba",
@@ -32,7 +32,7 @@ public class ClientTestController {
         "customerExpiredCard": "2030-03",
         "customerPan": "4012001037141112",
         "redirectUrl": "http://localhost:8080/client/success",
-        "transactionNumber": "1234322344"
+        "transactionNumber": "1234322344-2"
         }
 
 

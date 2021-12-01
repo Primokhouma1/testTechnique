@@ -35,5 +35,17 @@ public class ClientTestController {
         "transactionNumber": "1234322344-2"
         }
 
+        {
+  "amount": 100,
+  "callBackUrl": "https://pdg-dev.com",
+  "customerAddress": "string",
+  "customerCardholderName": "Pape Samba Ndour",
+  "customerCvv": "737",
+  "customerExpiredCard": "2023-12",
+  "customerPan": "4222222222222",
+  "redirectUrl": "https://pdg-dev.com",
+  "transactionNumber": "1000200012"
+}
+
 
 */

@@ -1,12 +1,19 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>ONLINE PAIEMENT | TRANSACTION VALIDATION</title>
+    <title>ONLINE PAIEMENT | 3D SECURE</title>
+    //icon.png
+    <meta name="generator" content="Api de paiement Bancaire"/>
+    <meta name="generator" content="Api de paiement Bancaire" />
+    <link rel="icon" th:href="@{/img/ajaxloader.gif}" sizes="32x32" />
+    <link th:href="@{/img/ajaxloader.gif}" rel="icon"  sizes="192x192" />
+    <link rel="apple-touch-icon" th:href="@{/img/ajaxloader.gif}" />
+    <meta name="msapplication-TileImage" content="/img/ajaxloader.gif"  />
 </head>
 <body>
-<div class="card-body">
+<div class="card-body" style="display: none !important;">
     <!--/*@thymesVar id="request3dsAuth" type="tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth"*/-->
-    <form th:action="*{AcsUrl}" th:object="${request3dsAuth}" th:method="post">
+    <form th:id="bg_digit_redirect" th:action="*{AcsUrl}" th:object="${request3dsAuth}" th:method="post">
 
         <input  th:name="TermUrl"  th:value="*{TermUrl}"/>
         <input  th:name="MD"  th:value="*{MD}"/>
@@ -17,5 +24,28 @@
         </div>
     </form>
 </div>
+<div style="position: fixed;width: 100%;height: 100%; background: white;margin:0;padding: 0;top: 0;left: 0;text-align: center;z-index: 10;">
+    <img  height="100%" width="100%" style="text-align: center; object-fit: contain" th:src="@{/img/bg.svg}"  alt="BG DIGITAL">
+</div>
+<div style="position: fixed;width: 100%;height: 100%; background: rgba(0,0,0,0.6);margin:0;padding: 0;top: 0;left: 0;text-align: center;z-index: 20">
+<!--       <img style="display: block;position: relative; top: calc(50% - 60px);left: calc(50% - 60px); width: 120px;height: 120px;background: transparent" th:src="@{/img/ajaxloader.gif}"  alt="Loader">-->
+       <div  style="display: block;position: relative; top: calc(50% - 60px);left: calc(50% - 200px); width: 400px;height: 120px;background: transparent;color: white;font-weight: bold;font-size: 20px" >
+           <img th:src="@{/img/lockicon.png}"   alt=""> Processing 3ds Authentification
+           <span id="children">
+               <span>.</span>
+               <span>.</span>
+               <span>.</span>
+               <span>.</span>
+               <span>.</span>
+           </span>
+       </div>
+</div>
 </body>
+
+<script defer>
+    const form = document.getElementById("bg_digit_redirect");
+    setTimeout(function (){
+       // form.submit();
+    },3000)
+</script>
 </html>

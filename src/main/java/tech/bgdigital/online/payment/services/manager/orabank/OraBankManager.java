@@ -75,8 +75,8 @@ public class OraBankManager implements OraBankServiceInterface {
                 responseApi.code = 403;
                 responseApi.message= responseInit.message;
                 responseApi.error = true;
-                responseApi.data = "";
-                this.finishTransaction(responseInit.response);
+                responseApi.data = "ok";
+                this.finishTransaction(responseInit.response,responseInit.message);
             }else {
                 Transaction transaction = responseInit.response;
                 Map<String, String> response = new HashMap<>();
@@ -171,8 +171,8 @@ public class OraBankManager implements OraBankServiceInterface {
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
             if(restApiPayement.error){
-                finishTransaction(transaction);
-                return new InternalResponse<>(new Transaction(),true,restApiPayement.message);
+                //finishTransaction(transaction,restApiPayement.message);
+                return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
                 transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
@@ -197,8 +197,8 @@ public class OraBankManager implements OraBankServiceInterface {
 
         } catch (Exception e) {
             e.printStackTrace();
-            finishTransaction(transaction);
-            return new InternalResponse<>(new Transaction(),true,e.getMessage());
+           // finishTransaction(transaction);
+            return new InternalResponse<>(transaction ,true,e.getMessage());
         }
     }
     public void finishTransaction(Transaction transaction){
@@ -209,6 +209,15 @@ public class OraBankManager implements OraBankServiceInterface {
             transactionRepository.save(transaction);
         }
         new InternalResponse<>(transaction, true, "Transaction annulé");
+    }
+    public void finishTransaction(Transaction transaction,String message){
+        if(transaction.getId() != null){
+            transaction.setStatus(Status.FAILED);
+            transaction.setFailedAt(new Date());
+            transaction.setMessageError(message);
+            transactionRepository.save(transaction);
+        }
+        new InternalResponse<>(transaction, true, message);
     }
     public Object handleDebit(){
         return  "";
@@ -249,7 +258,19 @@ public class OraBankManager implements OraBankServiceInterface {
             if(Objects.equals(transaction.getStatus(), Status.SUCCESS)){
                 transaction.setSuccessAt(new Date());
                 transactionRepository.save(transaction);
-//                InternalResponse<CallbackPartnerResponse> resCallback =  this.oraBankIntegration.callBackSend(transaction);
+            }else if(Objects.equals(transaction.getStatus(), Status.FAILED)){
+                transaction.setCallbackFailedAt(new Date());
+                transactionRepository.save(transaction);
+                if(!internalResponse.response.ora3ds.status.isEmpty()){
+                    transaction.setMessageError( "Failed card debit");
+                    transaction.setMessageAuth3ds( internalResponse.response.ora3ds.status);
+                }else {
+                    transaction.setMessageError("Failed card debit");
+                }
+                transactionRepository.save(transaction);
+            }
+            //Callback
+            //                InternalResponse<CallbackPartnerResponse> resCallback =  this.oraBankIntegration.callBackSend(transaction);
 //                if(!resCallback.error ){
 //                    transaction.setCallbackSentedAt(new Date());
 //                    transaction.setCallbackSended(true);
@@ -260,16 +281,6 @@ public class OraBankManager implements OraBankServiceInterface {
 //                    transaction.setMessageError(resCallback.message);
 //                    transactionRepository.save(transaction);
 //                }
-            }else if(Objects.equals(transaction.getStatus(), Status.FAILED)){
-                transaction.setCallbackFailedAt(new Date());
-                transactionRepository.save(transaction);
-                if(!internalResponse.response.ora3ds.status.isEmpty()){
-                    transaction.setMessageError( internalResponse.response.ora3ds.status);
-                }else {
-                    transaction.setMessageError("Failed card debit");
-                }
-                transactionRepository.save(transaction);
-            }
         }
         return transaction;
     }

@@ -32,7 +32,7 @@ public class ValidatorBean {
         return Arrays.stream(name.split(" ")).toArray().length > 1;
     }
     public boolean isAddress(String address){
-        return Arrays.stream(address.split(" ")).toArray().length > 1;
+        return address.length() > 1;
     }
     public boolean isNotEmpty(String text){
         return !text.isEmpty() ;

@@ -132,6 +132,9 @@ public class Transaction {
     @Column(name = "message_error")
     private String messageError;
 
+    @Column(name = "message_auth_3ds")
+    private String messageAuth3ds;
+
     @Lob
     @Column(name = "request_json")
     private String requestJson;
@@ -163,6 +166,28 @@ public class Transaction {
 
     @Column(name = "callback_sended")
     private Boolean callbackSended;
+
+    @Column(name = "proccess",columnDefinition = "boolean default false")
+    private Boolean proccess;
+
+    @Column(name = "proccess_at")
+    private Date proccessAt;
+
+    public Boolean getProccess() {
+        return proccess;
+    }
+
+    public void setProccess(Boolean proccess) {
+        this.proccess = proccess;
+    }
+
+    public Date getProccessAt() {
+        return proccessAt;
+    }
+
+    public void setProccessAt(Date proccessAt) {
+        this.proccessAt = proccessAt;
+    }
 
     @Lob
     @Column(name = "redirect_url")
@@ -530,6 +555,14 @@ public class Transaction {
 
     public String getCustomerCardPan() {
         return customerCardPan;
+    }
+
+    public String getMessageAuth3ds() {
+        return messageAuth3ds;
+    }
+
+    public void setMessageAuth3ds(String messageAuth3ds) {
+        this.messageAuth3ds = messageAuth3ds;
     }
 
     public void setCustomerCardPan(String customerCardPan) {

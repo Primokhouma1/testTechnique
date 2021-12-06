@@ -12,7 +12,6 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
@@ -234,10 +233,15 @@ public class OraBankManager implements OraBankServiceInterface {
         if(transaction==null){
             return  null;
         }
-        request3DsAuth.AcsUrl = transactionItemRepository.findByNameAndTransactions(environment.oraAcsUrl,transaction).getValue();
-        request3DsAuth.PaReq =transactionItemRepository.findByNameAndTransactions(environment.oraAcsPaReq,transaction).getValue();
-        request3DsAuth.MD =transactionItemRepository.findByNameAndTransactions(environment.oraAcsMd,transaction).getValue();
-        request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds + "/" + token;
+        try {
+            request3DsAuth.AcsUrl = transactionItemRepository.findByNameAndTransactions(environment.oraAcsUrl,transaction).getValue();
+            request3DsAuth.PaReq =transactionItemRepository.findByNameAndTransactions(environment.oraAcsPaReq,transaction).getValue();
+            request3DsAuth.MD =transactionItemRepository.findByNameAndTransactions(environment.oraAcsMd,transaction).getValue();
+            request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds + "/" + token;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  null;
+        }
         return request3DsAuth;
     }
     public Transaction getTransactionBYMd(String MD,String token){
@@ -330,6 +334,24 @@ public class OraBankManager implements OraBankServiceInterface {
         }
         internalResponse.response = validations;
         return internalResponse;
+    }
+
+    public Boolean processTransaction(Transaction transaction){
+        try {
+            if(transaction ==null){
+                return false;
+            }
+            transaction.setProccess(true);
+            transaction.setProccessAt(new Date());
+            transactionRepository.save(transaction);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public Transaction getTransaction(String refTrx){
+       return this.transactionRepository.findTransactionByTrxRef(refTrx);
     }
 
 

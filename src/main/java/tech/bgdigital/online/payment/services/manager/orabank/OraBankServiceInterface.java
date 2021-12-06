@@ -19,4 +19,6 @@ public interface OraBankServiceInterface {
     public Request3dsAuth getRequest3dsAuthentification(String token);
     public Transaction getTransactionBYMd(String MD,String token);
     public Transaction validate3ds(Response3dsAuth response3dsAuth, String token);
+    public Boolean processTransaction(Transaction transaction);
+    public Transaction getTransaction(String refTrx);
 }

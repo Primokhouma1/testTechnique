@@ -7,15 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.enumeration.Status;
-import tech.bgdigital.online.payment.models.repository.PartnerRepository;
-import tech.bgdigital.online.payment.models.repository.TransactionItemRepository;
 import tech.bgdigital.online.payment.models.repository.TransactionRepository;
-import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
 
@@ -29,11 +24,11 @@ public class CardBankWebController {
     final
     OraBankServiceInterface oraBankManager;
     final
-    TransactionRepository transactionItemRepository;
+    TransactionRepository transactionRepository;
 
-    public CardBankWebController(OraBankServiceInterface oraBankManager, TransactionRepository transactionItemRepository) {
+    public CardBankWebController(OraBankServiceInterface oraBankManager, TransactionRepository transactionRepository) {
         this.oraBankManager = oraBankManager;
-        this.transactionItemRepository = transactionItemRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @RequestMapping(value = "3ds/{token}/authentification-request",method = RequestMethod.GET)
@@ -72,16 +67,24 @@ public class CardBankWebController {
         }
     }
 
-    @RequestMapping(value = "3ds/token-not-working/404",method = RequestMethod.GET)
+    /*@RequestMapping(value = "3ds/token-not-working/404",method = RequestMethod.GET)
     @ApiOperation(value = "", hidden = false)
     String redirectTokenNotWorking( HttpServletResponse httpServletResponse){
         return "bankservice/3ds-invalid-token";
-    }
+    }*/
     @RequestMapping(value = "failed-transaction/{token}",method = RequestMethod.GET)
     @ApiOperation(value = "", hidden = false)
     ModelAndView faildedTransaction(@PathVariable("token") String token, HttpServletResponse httpServletResponse){
         ModelAndView modelAndView = new ModelAndView("bankservice/failed-transaction");
-        modelAndView.addObject("transaction",this.transactionItemRepository.findByTrxRef(token));
+        Transaction transaction = this.oraBankManager.getTransaction(token) ;
+        System.out.println("OUT"+token);
+        boolean process = false;
+        if(transaction != null){
+            process = transaction.getProccess();
+        }
+        this.oraBankManager.processTransaction(transaction);
+        modelAndView.addObject("transaction",transaction);
+        modelAndView.addObject("process",process);
         return modelAndView;
     }
 }

@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
    public Transaction findByTrxRef(String trxRef);
+   public Transaction findTransactionByTrxRef(String trxRef);
    public Transaction findTransactionByPartenerTrxRefAndPartners(String trxRef, Partner partner);
 }

@@ -4,11 +4,23 @@
     <title>ONLINE PAIEMENT | TRNASCTION FAILED</title>
 </head>
 <body>
+<div th:if="${transaction!= null}">
+    <div th:if="${process}">
+        <h1>Transaction Already process</h1>
+    </div>
+    <div th:if="${!process}">
+        <h1>Transaction Annulé cliquer pour être rediriger</h1>
+        <div th:text="${transaction.status}">
+            <span th:text="${transaction.status}"></span>
+        </div>
+        <a th:href="${transaction.redirectUrl}">
+            Retourner vers site web
+        </a>
+    </div>
 
-<!--<div class="wrapper" th:object="transaction">-->
-    <h1>Transaction Annulé cliquer pour etre rediriger</h1>
-<!--    <div th:text="*{transaction.status}"></div>-->
-<!--    <a th:href="*{transaction.redirectUrl}"></a>-->
-<!--</div>-->
+</div>
+<div th:if="${transaction == null}">
+    <h1>Not fount canceled opearation</h1>
+</div>
 </body>
 </html>

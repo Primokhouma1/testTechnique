@@ -30,8 +30,8 @@ public class OraBankIntegration {
             LoginOraOut loginOut = objectMapper.readValue(response.getBody(), LoginOraOut.class);
             return new InternalResponse<>(loginOut, false, "Login Réussit");
         } catch (Exception e) {
-            System.out.println("Error Login");
-            e.printStackTrace();
+            System.out.println("Error Login=>"+ e.getMessage());
+           // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
 
@@ -57,10 +57,13 @@ public class OraBankIntegration {
             oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
             oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
             InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
-            String token = loginOraOutInternalResponse.response.accessToken;
+
+           // System.out.println("Okkkkkk");
             if(loginOraOutInternalResponse.error){
                   return new InternalResponse<>(null, true, loginOraOutInternalResponse.message);
             }
+            String token = loginOraOutInternalResponse.response.accessToken;
+
             HttpResponse<String> response = Unirest.post(environment.oraBaseUrl + "/transactions/outlets/"+ environment.oraRefPointVente +"/payment/card")
                     .header("Content-Type", "application/vnd.ni-payment.v2+json")
                    // .header("Accept", "application/vnd.ni-payment.v2+json")
@@ -72,8 +75,8 @@ public class OraBankIntegration {
             OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
-            System.out.println("Error Payment");
-            e.printStackTrace();
+            System.out.println("Error Payment=>"+e.getMessage());
+           // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
 

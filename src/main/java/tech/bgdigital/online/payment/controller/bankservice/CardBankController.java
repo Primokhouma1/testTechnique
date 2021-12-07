@@ -2,8 +2,6 @@ package tech.bgdigital.online.payment.controller.bankservice;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -17,7 +15,6 @@ import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInte
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Validator;
-import javax.xml.validation.ValidatorHandler;
 import java.util.Map;
 
 @RestController
@@ -42,13 +39,18 @@ public class CardBankController {
         this.oraBankManager = oraBankManager;
     }
     @ApiOperation(value = "Cette methode permet de débiter une carte visa ou master card d'un client.")
-    @PostMapping(value = "debit")
-    public ResponseEntity<Map<String, Object>> debitCard(@RequestBody CardDebitIn cardDebitIn){
-       // Object violations = validator.validate(new CardDebitIn());
-//        return new ResponseEntity<>(httpResponseApi.response(violations, 200, false, "responseApi.message"), HttpStatus.OK);
-
-        ResponseApi<Object> responseApi =  oraBankManager.debitCard(cardDebitIn,request);
-
+    @PostMapping(value = "debit/{service}")
+    public ResponseEntity<Map<String, Object>> debitCard(@PathVariable("service") String service,@RequestBody CardDebitIn cardDebitIn){
+        ResponseApi<Object> responseApi = new ResponseApi<>();
+        if (ApiService.ORA_BANK.equals(service)) {
+            responseApi = oraBankManager.debitCard(cardDebitIn, request);
+        } else {
+            responseApi.data = null;
+            responseApi.message = "Service introuvable";
+            responseApi.code = 404;
+            responseApi.error = true;
+        }
+       //responseApi =  oraBankManager.debitCard(cardDebitIn,request);
         return new ResponseEntity<>(httpResponseApi.response(responseApi.data, responseApi.code, responseApi.error, responseApi.message), HttpStatus.OK);
     }
     @ApiOperation(value = "Cette methode permet de récupérer le résultat d'une validation 3DS depuis la page d'authentification 3DS de la banque du client.")

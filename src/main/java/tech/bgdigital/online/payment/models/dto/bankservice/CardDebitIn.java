@@ -25,4 +25,5 @@ public class CardDebitIn {
     public String customerPan;
 
     public String customerPhone;
+    public String service;
 }

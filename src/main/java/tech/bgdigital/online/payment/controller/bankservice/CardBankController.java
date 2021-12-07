@@ -40,9 +40,9 @@ public class CardBankController {
     }
     @ApiOperation(value = "Cette methode permet de débiter une carte visa ou master card d'un client.")
     @PostMapping(value = "debit/{service}")
-    public ResponseEntity<Map<String, Object>> debitCard(@PathVariable("service") String service,@RequestBody CardDebitIn cardDebitIn){
+    public  ResponseEntity<Map<String, Object>> debitCard(@RequestBody CardDebitIn cardDebitIn){
         ResponseApi<Object> responseApi = new ResponseApi<>();
-        if (ApiService.ORA_BANK.equals(service)) {
+        if (ApiService.ORA_BANK.equals(cardDebitIn.service)) {
             responseApi = oraBankManager.debitCard(cardDebitIn, request);
         } else {
             responseApi.data = null;

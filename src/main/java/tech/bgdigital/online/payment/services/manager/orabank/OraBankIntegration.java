@@ -112,6 +112,14 @@ public class OraBankIntegration {
     public InternalResponse<CallbackPartnerResponse> callBackSend(Transaction transaction) {
         try {
             CallbackPartnerRequest callbackPartnerRequest = new CallbackPartnerRequest();
+            callbackPartnerRequest.amount =transaction.getAmountTrx();
+            callbackPartnerRequest.status =transaction.getStatus();
+            callbackPartnerRequest.transactionID =transaction.getPartenerTrxRef();
+            callbackPartnerRequest.transactionNumber =transaction.getTrxRef();
+            callbackPartnerRequest.cardType =transaction.getCustomerCardType();
+            callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
+            callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
+            //todo add info callback
             HttpResponse<String> response = Unirest.post(transaction.getCallbackUrl())
                     .header("Content-Type", "application/json")
                     .body(objectMapper.writeValueAsString( callbackPartnerRequest))

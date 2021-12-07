@@ -10,6 +10,7 @@ import java.util.Date;
 @Table(name = "transactions",
 indexes = {
         @Index(name = "partener_trx_ref_UNIQUE", columnList = "partener_trx_ref, partners_id", unique = true),
+        @Index(name = "trx_ref_UNIQUE", columnList = "trx_ref", unique = true),
 })
 @Entity
 @SQLDelete(sql = "update transactions set state = 'DISABLED' where id= ?")
@@ -124,6 +125,9 @@ public class Transaction {
     @Column(name = "customer_address")
     private String customerAddress;
 
+    @Column(name = "customer_phone")
+    private String customerPhone;
+
     @Lob
     @Column(name = "message_success")
     private String messageSuccess;
@@ -167,8 +171,8 @@ public class Transaction {
     @Column(name = "callback_sended")
     private Boolean callbackSended;
 
-    @Column(name = "proccess",columnDefinition = "boolean default false")
-    private Boolean proccess;
+    @Column(name = "proccess",columnDefinition = "bit default 0")
+    private Boolean proccess = false;
 
     @Column(name = "proccess_at")
     private Date proccessAt;
@@ -563,6 +567,14 @@ public class Transaction {
 
     public void setMessageAuth3ds(String messageAuth3ds) {
         this.messageAuth3ds = messageAuth3ds;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public void setCustomerCardPan(String customerCardPan) {

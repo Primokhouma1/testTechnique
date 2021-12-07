@@ -9,6 +9,72 @@
     <link th:href="@{/img/ajaxloader.gif}" rel="icon"  sizes="192x192" />
     <link rel="apple-touch-icon" th:href="@{/img/ajaxloader.gif}" />
     <meta name="msapplication-TileImage" content="/img/ajaxloader.gif"  />
+    <style>
+     .hide{
+         visibility: hidden;
+     }
+     .show{
+         visibility: visible;
+     }
+     /** Original source from loading.io, published under CC0 license */
+
+     .lds-ellipsis {
+         display: inline-block;
+         position: relative;
+         width: 12rem;
+         height: 2.5rem;
+     }
+     .lds-ellipsis div {
+         position: absolute;
+         top: 1rem;
+         width: .5rem;
+         height: .5rem;
+         border-radius: 50%;
+         background: black; /* fallback for IE11 */
+         background: var(--text-color-secondary);
+         animation-timing-function: cubic-bezier(0, 1, 1, 0);
+     }
+     .lds-ellipsis div:nth-child(1) {
+         left: 1rem;
+         animation: lds-ellipsis1 0.6s infinite;
+     }
+     .lds-ellipsis div:nth-child(2) {
+         left: 1rem;
+         animation: lds-ellipsis2 0.6s infinite;
+     }
+     .lds-ellipsis div:nth-child(3) {
+         left: 4rem;
+         animation: lds-ellipsis2 0.6s infinite;
+     }
+     .lds-ellipsis div:nth-child(4) {
+         left: 10rem;
+         animation: lds-ellipsis3 0.6s infinite;
+     }
+     @keyframes lds-ellipsis1 {
+         0% {
+             transform: scale(0);
+         }
+         100% {
+             transform: scale(1);
+         }
+     }
+     @keyframes lds-ellipsis3 {
+         0% {
+             transform: scale(1);
+         }
+         100% {
+             transform: scale(0);
+         }
+     }
+     @keyframes lds-ellipsis2 {
+         0% {
+             transform: translate(0, 0);
+         }
+         100% {
+             transform: translate(3rem, 0);
+         }
+     }
+    </style>
 </head>
 <body>
 <div class="card-body" style="display: none !important;">
@@ -29,23 +95,22 @@
 </div>
 <div style="position: fixed;width: 100%;height: 100%; background: rgba(0,0,0,0.6);margin:0;padding: 0;top: 0;left: 0;text-align: center;z-index: 20">
 <!--       <img style="display: block;position: relative; top: calc(50% - 60px);left: calc(50% - 60px); width: 120px;height: 120px;background: transparent" th:src="@{/img/ajaxloader.gif}"  alt="Loader">-->
-       <div  style="display: block;position: relative; top: calc(50% - 60px);left: calc(50% - 200px); width: 400px;height: 120px;background: transparent;color: white;font-weight: bold;font-size: 20px" >
-           <img th:src="@{/img/lockicon.png}"   alt=""> Processing 3ds Authentification
-           <span id="children">
-               <span>.</span>
-               <span>.</span>
-               <span>.</span>
-               <span>.</span>
-               <span>.</span>
-           </span>
+       <div  style="display: block;position: relative; top: calc(50% - 60px);left: calc(50% - 250px); width: 500px;height: 120px;background: transparent;color: white;font-weight: bold;font-size: 30px" >
+           <img style="position: relative;top: 1px" height="20" width="20" th:src="@{/img/lockicon.png}"   alt="">
+           Processing 3ds Authentification
+           <img style="position: relative;top: 10px;left: 25px" height="40" width="40" th:src="@{/img/ajaxloader.gif}"   alt="">
+
        </div>
 </div>
+
 </body>
 
 <script defer>
     const form = document.getElementById("bg_digit_redirect");
     setTimeout(function (){
-       // form.submit();
-    },3000)
+        form.submit();
+    },3000);
+
+
 </script>
 </html>

@@ -121,4 +121,7 @@ public class ValidatorBean {
     public boolean isExisteTransactionNumber(String trxNumer, Partner partner){
         return transactionRepository.findTransactionByPartenerTrxRefAndPartners(trxNumer,partner) != null;
     }
+    public boolean isValidPhone(String phone){
+        return phone != null && phone.length() >= 9 && this.valideListNumberString(List.of(phone.split("")));
+    }
 }

@@ -23,4 +23,6 @@ public class CardDebitIn {
     public String customerExpiredCard;
 
     public String customerPan;
+
+    public String customerPhone;
 }

@@ -74,7 +74,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 responseApi.code = 403;
                 responseApi.message= responseInit.message;
                 responseApi.error = true;
-                responseApi.data = "ok";
+                responseApi.data = null;
                 this.finishTransaction(responseInit.response,responseInit.message);
             }else {
                 Transaction transaction = responseInit.response;
@@ -99,6 +99,7 @@ public class OraBankManager implements OraBankServiceInterface {
             Service service = serviceRepository.findByCode(OraBankManager.SERVICE_CODE);
             TarifFrai tarifFrai = tarifFraiRepository.findByServicesAndPartners(service,partner);
             transaction.setAmountTrx(cardDebitIn.amount);
+            transaction.setProccess(false);
             transaction.setCallBackRetryNumber(0);
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
             transaction.setRedirectUrl(cardDebitIn.redirectUrl);
@@ -263,7 +264,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 transaction.setSuccessAt(new Date());
                 transactionRepository.save(transaction);
             }else if(Objects.equals(transaction.getStatus(), Status.FAILED)){
-                transaction.setCallbackFailedAt(new Date());
+                transaction.setFailedAt(new Date());
                 transactionRepository.save(transaction);
                 if(!internalResponse.response.ora3ds.status.isEmpty()){
                     transaction.setMessageError( "Failed card debit");
@@ -327,6 +328,10 @@ public class OraBankManager implements OraBankServiceInterface {
         if(validatorBean.isExisteTransactionNumber(cardDebitIn.transactionNumber,partner)){
             error =true;
             validations.put("transactionNumber","Le numéro de transaction existe ");
+        }
+        if(!validatorBean.isValidPhone(cardDebitIn.customerPhone)){
+            error =true;
+            validations.put("customerPhone","Le numéro de telephone n'est pas valide ");
         }
         internalResponse.error = error;
         if(error){

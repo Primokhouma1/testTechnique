@@ -12,6 +12,8 @@ import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
+import java.util.Map;
+
 @Component
 public class OraBankIntegration {
     @Autowired
@@ -120,9 +122,12 @@ public class OraBankIntegration {
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
             //todo add info callback
+            String paramsBody = toQS(callbackPartnerRequest);
+            System.out.println("BODY--"+ paramsBody);
             HttpResponse<String> response = Unirest.post(transaction.getCallbackUrl())
-                    .header("Content-Type", "application/json")
-                    .body(objectMapper.writeValueAsString( callbackPartnerRequest))
+//                    .header("Content-Type", "application/json")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .body(paramsBody)
                     .asString();
             //System.out.println("token =>" + token);
             System.out.println("oraValidationResponse +>" + response.getBody());
@@ -134,6 +139,34 @@ public class OraBankIntegration {
             return new InternalResponse<>(null, true, e.getMessage());
         }
 
+    }
+    // convert Object to queryString
+    public  String toQS(Object object){
+
+        // Object --> map
+        Map map =
+                objectMapper.convertValue(
+                        object, Map.class);
+
+
+        StringBuilder qs = new StringBuilder();
+        for (Object key : map.keySet()){
+
+            if (map.get(key) == null){
+                continue;
+            }
+            // key=value&
+            qs.append(key);
+            qs.append("=");
+            qs.append(map.get(key));
+            qs.append("&");
+        }
+
+        // delete last '&'
+        if (qs.length() != 0) {
+            qs.deleteCharAt(qs.length() - 1);
+        }
+        return qs.toString();
     }
 
 }

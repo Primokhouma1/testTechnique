@@ -3,6 +3,7 @@ package tech.bgdigital.online.payment.models.enumeration;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.StatusOraRestOut;
 
 public class Status {
+    public final static String  INIT = "INIT";
     public final static String  PENDING = "PENDING";
     public final static String   SUCCESS  = "SUCCESS";
     public final static String  CANCELED = "CANCELED";

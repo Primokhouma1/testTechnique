@@ -105,7 +105,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
             transaction.setRedirectUrl(cardDebitIn.redirectUrl);
             transaction.setCustomerAddress(cardDebitIn.customerAddress);
-            transaction.setStatusCallback(Status.PENDING);
+            transaction.setStatusCallback(Status.INIT);
           //  transaction.setCallbackJson("");//todo set data callback json
             transaction.setCallbackSended(false);
             /*Set Platform Val*/
@@ -163,11 +163,17 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setServiceCode(service.getCode());
             transaction.setServiceName(service.getName());
             transaction.setState(State.ACTIVED);
-            transaction.setStatus(Status.PENDING);
+            transaction.setStatus(Status.INIT);
             transaction.setTypeOperation(TypeOperation.CREDIT);
             transaction.setPartners(partner);
             transaction.setServices(service);
             transaction =  transactionRepository.save(transaction);
+            //info pay
+            transaction.setCustomerCardExpiry(cardDebitIn.customerExpiredCard);
+            transaction.setCustomerCardCardholderName(cardDebitIn.customerCardholderName);
+            transaction.setCustomerCardPan(cardDebitIn.customerPan);
+            transaction.setCustomerPhone(cardDebitIn.customerPhone);
+
             //todo save transaction
             //todo call paymentRequest
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
@@ -177,8 +183,8 @@ public class OraBankManager implements OraBankServiceInterface {
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
-                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
-                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
+//                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
+//                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
                 transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
                 transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
                 //todo set Transaction item

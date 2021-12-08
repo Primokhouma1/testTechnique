@@ -23,4 +23,13 @@ public class HttpResponseApi implements HttpResponseApiInterface{
         responsePaginate.put("totalPages", pageTuts.getTotalPages());
         return responsePaginate;
     }
+    public  ResponseApi<Object> responseRest(Object data , Integer code, Boolean error, String message) {
+        ResponseApi<Object> responseApi = new ResponseApi<>();
+        responseApi.data = data ;
+        responseApi.code = code == null ? 201 : code;
+        responseApi.error = error;
+        responseApi.message = message == null ? "Donnée(s) disponible" : ( message.equals("") ? "Donnée(s) disponible" : message);
+        return responseApi;
+    }
+
 }

@@ -11,4 +11,6 @@ public interface HttpResponseApiInterface {
             = new HashMap<>();
     public Map<String, Object> response(Object data , Object code, Boolean error, String message);
     public Map<String, Object> paginate(Object data, Page pageTuts );
+    public ResponseApi<Object> responseRest(Object data , Integer code, Boolean error, String message);
+//    public  <T extends ResponseApi<T>> ResponseApi<T> responseRest(T data , Integer code, Boolean error, String message);
 }

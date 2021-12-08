@@ -2,12 +2,15 @@ package tech.bgdigital.online.payment.controller.bankservice;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
+import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitOut;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
@@ -40,9 +43,14 @@ public class CardBankController {
     }
     @ApiOperation(value = "Cette methode permet de débiter une carte visa ou master card d'un client.")
     @PostMapping(value = "debit/{service}")
-    public  ResponseEntity<Map<String, Object>> debitCard(@RequestBody CardDebitIn cardDebitIn){
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success|OK",response = CardDebitIn.class),
+            @ApiResponse(code = 401, message = "not authorized!"),
+            @ApiResponse(code = 403, message = "forbidden!!!"),
+            @ApiResponse(code = 404, message = "not found!!!") })
+    public ResponseApi<Object> debitCard(@PathVariable(value = "service") String service, @RequestBody CardDebitIn cardDebitIn){
         ResponseApi<Object> responseApi = new ResponseApi<>();
-        if (ApiService.ORA_BANK.equals(cardDebitIn.service)) {
+        if (ApiService.ORA_BANK.equals(service)) {
             responseApi = oraBankManager.debitCard(cardDebitIn, request);
         } else {
             responseApi.data = null;
@@ -50,14 +58,9 @@ public class CardBankController {
             responseApi.code = 404;
             responseApi.error = true;
         }
-       //responseApi =  oraBankManager.debitCard(cardDebitIn,request);
-        return new ResponseEntity<>(httpResponseApi.response(responseApi.data, responseApi.code, responseApi.error, responseApi.message), HttpStatus.OK);
+        return  httpResponseApi.responseRest(responseApi.data, responseApi.code, responseApi.error, responseApi.message);
     }
-    @ApiOperation(value = "Cette methode permet de récupérer le résultat d'une validation 3DS depuis la page d'authentification 3DS de la banque du client.")
-    @PostMapping(value = "interceptor/{partnerId}/{token}")
-    public ResponseEntity<Map<String, Object>> interceptor(@PathVariable("partnerId") String partnerId,@PathVariable("token") String token){
-        return new ResponseEntity<>(httpResponseApi.response(token +" <=> "+ partnerId, 200, false, "Annulation"), HttpStatus.OK);
-    }
+
     @ApiOperation(value = "Cette methode permet d'annuler une transaction et de rembourser le montant débiter.")
     @PutMapping(value = "cancel/{token}")
     public ResponseEntity<Map<String, Object>> cancel(@PathVariable("token") String token){

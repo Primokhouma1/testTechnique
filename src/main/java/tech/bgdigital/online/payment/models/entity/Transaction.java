@@ -56,6 +56,10 @@ public class Transaction {
     private String status;
 
     @Lob
+    @Column(name = "status_callback")
+    private String statusCallback;
+
+    @Lob
     @Column(name = "state", nullable = false)
     private String state;
 
@@ -135,6 +139,9 @@ public class Transaction {
     @Lob
     @Column(name = "message_error")
     private String messageError;
+    @Lob
+    @Column(name = "callback_message_error")
+    private String callbackMessageError;
 
     @Column(name = "message_auth_3ds")
     private String messageAuth3ds;
@@ -421,6 +428,14 @@ public class Transaction {
         this.commAmountFixePlateform = commAmountFixePlateform;
     }
 
+    public String getCallbackMessageError() {
+        return callbackMessageError;
+    }
+
+    public void setCallbackMessageError(String callbackMessageError) {
+        this.callbackMessageError = callbackMessageError;
+    }
+
     public BigDecimal getFeePercentPartner() {
         return feePercentPartner;
     }
@@ -575,6 +590,14 @@ public class Transaction {
 
     public void setCustomerPhone(String customerPhone) {
         this.customerPhone = customerPhone;
+    }
+
+    public String getStatusCallback() {
+        return statusCallback;
+    }
+
+    public void setStatusCallback(String statusCallback) {
+        this.statusCallback = statusCallback;
     }
 
     public void setCustomerCardPan(String customerCardPan) {

@@ -1,5 +1,7 @@
 package tech.bgdigital.online.payment.models.dto.bankservice;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -23,7 +25,5 @@ public class CardDebitIn {
     public String customerExpiredCard;
 
     public String customerPan;
-
     public String customerPhone;
-    public String service;
 }

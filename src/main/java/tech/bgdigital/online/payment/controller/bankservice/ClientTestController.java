@@ -25,14 +25,15 @@ public class ClientTestController {
 /*
       {
         "amount": 1500,
-        "callBackUrl": "http://localhost:8080/client/callback",
+        "callBackUrl": "https://magento.local:9090/ipn.php",
         "customerAddress": "Dakar Sebegal",
         "customerCardholderName": "Pape Samba",
         "customerCvv": "737",
         "customerExpiredCard": "2030-03",
         "customerPan": "4012001037141112",
         "redirectUrl": "http://localhost:8080/client/success",
-        "transactionNumber": "1234322344-2"
+        "transactionNumber": "1234322344-2",
+        "customerPhone":"777293282"
         }
 
         {

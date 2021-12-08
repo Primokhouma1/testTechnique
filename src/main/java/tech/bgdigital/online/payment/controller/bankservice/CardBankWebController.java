@@ -66,12 +66,6 @@ public class CardBankWebController {
             httpServletResponse.setStatus(302);
         }
     }
-
-    /*@RequestMapping(value = "3ds/token-not-working/404",method = RequestMethod.GET)
-    @ApiOperation(value = "", hidden = false)
-    String redirectTokenNotWorking( HttpServletResponse httpServletResponse){
-        return "bankservice/3ds-invalid-token";
-    }*/
     @RequestMapping(value = "failed-transaction/{token}",method = RequestMethod.GET)
     @ApiOperation(value = "", hidden = false)
     ModelAndView faildedTransaction(@PathVariable("token") String token, HttpServletResponse httpServletResponse){

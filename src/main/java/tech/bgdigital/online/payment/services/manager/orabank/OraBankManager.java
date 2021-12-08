@@ -12,6 +12,7 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
@@ -104,6 +105,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
             transaction.setRedirectUrl(cardDebitIn.redirectUrl);
             transaction.setCustomerAddress(cardDebitIn.customerAddress);
+            transaction.setStatusCallback(Status.PENDING);
           //  transaction.setCallbackJson("");//todo set data callback json
             transaction.setCallbackSended(false);
             /*Set Platform Val*/
@@ -275,17 +277,22 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionRepository.save(transaction);
             }
             //Callback
-            //                InternalResponse<CallbackPartnerResponse> resCallback =  this.oraBankIntegration.callBackSend(transaction);
-//                if(!resCallback.error ){
-//                    transaction.setCallbackSentedAt(new Date());
-//                    transaction.setCallbackSended(true);
-//                    transaction.setMessageError("Transaction validé.");
-//                    transactionRepository.save(transaction);
-//                }else {
-//                    transaction.setCallbackFailedAt(new Date());
-//                    transaction.setMessageError(resCallback.message);
-//                    transactionRepository.save(transaction);
-//                }
+                InternalResponse<String> resCallback =  this.oraBankIntegration.callBackSend(transaction);
+                if(!resCallback.error ){
+                    transaction.setCallbackSentedAt(new Date());
+                    transaction.setCallbackSended(true);
+                    transaction.setMessageError("Transaction validé.");
+                    transactionRepository.save(transaction);
+                    transaction.setStatusCallback(Status.SUCCESS);
+                    System.out.println("SUCCESS CALLBACK");
+                }else {
+                    transaction.setCallbackFailedAt(new Date());
+                    transaction.setCallbackSended(true);
+                    transaction.setCallbackMessageError(resCallback.message);
+                    transaction.setStatusCallback(Status.FAILED);
+                    transactionRepository.save(transaction);
+                    System.out.println("FAILED CALLBACK");
+                }
         }
         return transaction;
     }

@@ -109,7 +109,7 @@ public class OraBankIntegration {
         }
 
     }
-    public InternalResponse<CallbackPartnerResponse> callBackSend(Transaction transaction) {
+    public InternalResponse<String> callBackSend(Transaction transaction) {
         try {
             CallbackPartnerRequest callbackPartnerRequest = new CallbackPartnerRequest();
             callbackPartnerRequest.amount =transaction.getAmountTrx();
@@ -126,8 +126,8 @@ public class OraBankIntegration {
                     .asString();
             //System.out.println("token =>" + token);
             System.out.println("oraValidationResponse +>" + response.getBody());
-            CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
-            return new InternalResponse<>(callbackPartnerResponse, false, "Callback sent successful");
+           // CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
+            return new InternalResponse<>(response.getBody(), false, "Callback sent successful");
         } catch (Exception e) {
             System.out.println("Error Validation");
             e.printStackTrace();

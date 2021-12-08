@@ -111,8 +111,6 @@ public class AccountStatementController {
             if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {
-
-//                Regions regions_ = regionDao.findById(regions.getId()).orElse(null);
                 AccountStatement accountStatement1 = accountStatementRepository.findByIdAndStateNot(accountStatement.getId(), State.DELETED);
                 if (accountStatement1 == null) {
                     return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Cette région n'existe pas.");
@@ -145,7 +143,7 @@ public class AccountStatementController {
 
             AccountStatement accountStatementExist = accountStatementRepository.findByIdAndStateNot(id, State.DELETED);
             if ((accountStatementExist) == null) {
-                return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), false, "Cet Objet n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "Cet Objet n'existe pas.");
             }
 
             if (accountStatementExist.getState().equals(State.ACTIVED)) {

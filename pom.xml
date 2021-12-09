@@ -85,6 +85,28 @@
     </dependencies>
 
     <build>
+        <finalName>online_payment_service</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>online_payment_service</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+   <!-- <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -106,18 +128,18 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-resources-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <configuration>-->
-<!--                            <finalName>online_payment_service</finalName>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+&lt;!&ndash;            <plugin>&ndash;&gt;
+&lt;!&ndash;                <groupId>org.apache.maven.plugins</groupId>&ndash;&gt;
+&lt;!&ndash;                <artifactId>maven-resources-plugin</artifactId>&ndash;&gt;
+&lt;!&ndash;                <executions>&ndash;&gt;
+&lt;!&ndash;                    <execution>&ndash;&gt;
+&lt;!&ndash;                        <configuration>&ndash;&gt;
+&lt;!&ndash;                            <finalName>online_payment_service</finalName>&ndash;&gt;
+&lt;!&ndash;                        </configuration>&ndash;&gt;
+&lt;!&ndash;                    </execution>&ndash;&gt;
+&lt;!&ndash;                </executions>&ndash;&gt;
+&lt;!&ndash;            </plugin>&ndash;&gt;
         </plugins>
-    </build>
+    </build>-->
 
 </project>

@@ -99,10 +99,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
+<!--                        <id>repackage</id>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
                         <configuration>
                             <finalName>online_payment_service</finalName>
                         </configuration>

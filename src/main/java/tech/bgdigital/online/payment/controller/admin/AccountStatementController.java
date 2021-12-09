@@ -171,7 +171,6 @@ public class AccountStatementController {
     @Transactional
     public Map<String, Object> delete(@PathVariable Integer id) {
         try {
-
             AccountStatement accountStatement_ = accountStatementRepository.findByIdAndStateNot(id, State.DELETED);
             if (accountStatement_ == null) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Cette région n'existe pas");
@@ -181,7 +180,6 @@ public class AccountStatementController {
                 accountStatementRepository.delete(accountStatement_);
                 accountStatement.setState(State.DELETED);
                 accountStatementRepository.save(accountStatement);
-
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), false, "Données supprimé avec success");
             }
         } catch(Exception e) {

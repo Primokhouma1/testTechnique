@@ -1,0 +1,19 @@
+[Unit]
+Description=Osticket services cron
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+User=deployment
+Group=deployment
+
+Type=simple
+
+Environment="JAVA_HOME=/usr/lib/jvm/default-java"
+WorkingDirectory=/var/www/html/site/bank-finance-dev/services/bank_online_payment
+ExecStart=/usr/bin/java -jar online_payment_service.jar
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

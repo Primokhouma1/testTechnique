@@ -23,7 +23,8 @@ public class OraBankIntegration {
     ObjectMapper objectMapper = new ObjectMapper();
     public InternalResponse<LoginOraOut> login() {
         try {
-           // System.out.println("environment.oraAppKey"+environment.oraAppKey);
+            System.out.println("environment.oraAppKey"+environment.oraAppKey);
+            System.out.println("environment.oraAppKey"+environment.oraBaseUrl);
             HttpResponse<String> response = Unirest.post(environment.oraBaseUrl + "/identity/auth/access-token")
                     .header("Content-Type", "application/vnd.ni-identity.v1+json")
                     .header("Authorization", "Basic "+  environment.oraAppKey)

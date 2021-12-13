@@ -1,10 +1,12 @@
 package tech.bgdigital.online.payment.services.properties;
 //import lombok.Getter;
 //import lombok.Setter;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("internalenv")
-//@Setter
-//@Getter
+@Setter
+@Getter
 public class Environment {
     public String oraBaseUrl;
     public String oraAppKey;
@@ -26,5 +28,6 @@ public class Environment {
     //platefom
     public String platformUrl;
     public String oraInterceptorUrl3ds;
+
 
 }

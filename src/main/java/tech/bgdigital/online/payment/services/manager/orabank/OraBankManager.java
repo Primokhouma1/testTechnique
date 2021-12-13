@@ -83,7 +83,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 response.put("status",transaction.getStatus());
                 response.put("transactionID",transaction.getTrxRef());
                 response.put("transactionNumber",transaction.getPartenerTrxRef());
-                response.put("3dsUrl",environment.platformUrl + "/payment/card/redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
+                response.put("url3ds",environment.platformUrl + "/payment/card/redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
                 responseApi.data = response;
             }
 

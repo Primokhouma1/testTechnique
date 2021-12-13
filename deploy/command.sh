@@ -1,5 +1,12 @@
+#PREROD DEV
 systemctl daemon-reload
 systemctl status bank_online_payment.service
 systemctl start bank_online_payment.service
 systemctl enable bank_online_payment.service
 systemctl status bank_online_payment.service
+#PROD
+systemctl daemon-reload
+systemctl status bank_online_payment_live.service
+systemctl start bank_online_payment_live.service
+systemctl enable bank_online_payment_live.service
+systemctl status bank_online_payment_live.service

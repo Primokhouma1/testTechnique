@@ -72,7 +72,7 @@ public class AccountStatementController {
 
         try {
 
-            if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+            if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }
 
@@ -108,7 +108,7 @@ public class AccountStatementController {
     public Map<String, Object> updateRegion(@Valid @RequestBody AccountStatement accountStatement) {
 
         try {
-            if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+            if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {
                 AccountStatement accountStatement1 = accountStatementRepository.findByIdAndStateNot(accountStatement.getId(), State.DELETED);

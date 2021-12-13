@@ -16,7 +16,8 @@ public class ValidatorBean {
     @Autowired
     TransactionRepository transactionRepository;
     public boolean isAmount(BigDecimal amount){
-        return amount.compareTo(new BigDecimal('1')) > 0;
+        System.out.println("amount=>"+amount +"=>"+ amount.compareTo(new BigDecimal("1")));
+        return amount.compareTo(new BigDecimal("1")) > 0;
     }
     public boolean isUrl(String url){
         String regex = "\\b(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";

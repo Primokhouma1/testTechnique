@@ -5,8 +5,10 @@ import com.mashape.unirest.http.Unirest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
+import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.entity.TransactionItem;
+import tech.bgdigital.online.payment.models.repository.PartnerRepository;
 import tech.bgdigital.online.payment.models.repository.TransactionItemRepository;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
@@ -20,6 +22,8 @@ public class OraBankIntegration {
     Environment environment;
     @Autowired
     TransactionItemRepository transactionItemRepository;
+    @Autowired
+    PartnerRepository partnerRepository;
     ObjectMapper objectMapper = new ObjectMapper();
     public InternalResponse<LoginOraOut> login() {
         try {
@@ -122,8 +126,9 @@ public class OraBankIntegration {
             callbackPartnerRequest.cardType =transaction.getCustomerCardType();
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
-            callbackPartnerRequest.appKey = "";
-            callbackPartnerRequest.secretKey ="";
+            Partner partner = transaction.getPartners();
+//            callbackPartnerRequest.appKey = partnerRepository.findById(transaction.getPartne);
+//            callbackPartnerRequest.secretKey ="";
             //todo add info callback
             String paramsBody = toQS(callbackPartnerRequest);
             System.out.println("BODY--"+ paramsBody);

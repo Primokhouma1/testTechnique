@@ -122,6 +122,8 @@ public class OraBankIntegration {
             callbackPartnerRequest.cardType =transaction.getCustomerCardType();
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
+            callbackPartnerRequest.appKey = "";
+            callbackPartnerRequest.secretKey ="";
             //todo add info callback
             String paramsBody = toQS(callbackPartnerRequest);
             System.out.println("BODY--"+ paramsBody);

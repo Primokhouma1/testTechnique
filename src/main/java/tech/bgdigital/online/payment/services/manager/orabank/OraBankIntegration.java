@@ -116,8 +116,8 @@ public class OraBankIntegration {
             CallbackPartnerRequest callbackPartnerRequest = new CallbackPartnerRequest();
             callbackPartnerRequest.amount =transaction.getAmountTrx();
             callbackPartnerRequest.status =transaction.getStatus();
-            callbackPartnerRequest.transactionID =transaction.getPartenerTrxRef();
-            callbackPartnerRequest.transactionNumber =transaction.getTrxRef();
+            callbackPartnerRequest.transactionID = transaction.getTrxRef();
+            callbackPartnerRequest.transactionNumber = transaction.getPartenerTrxRef();
             callbackPartnerRequest.cardType =transaction.getCustomerCardType();
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();

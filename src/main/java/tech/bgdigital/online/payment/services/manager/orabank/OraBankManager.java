@@ -330,10 +330,10 @@ public class OraBankManager implements OraBankServiceInterface {
             error =true;
             validations.put("customerExpiredCard","La date d'expiration n'est pas valide. Format : 2030-03");
         }
-        if(!validatorBean.isAddress(cardDebitIn.customerAddress)){
-            error =true;
-            validations.put("customerAddress","L'adresse n'est pas valide.");
-        }
+//        if(!validatorBean.isAddress(cardDebitIn.customerAddress)){
+//            error =true;
+//            validations.put("customerAddress","L'adresse n'est pas valide.");
+//        }
         if(!validatorBean.isPan(cardDebitIn.customerPan)){
             error =true;
             validations.put("customerPan","Le numéro de la carte n'est pas valide. Cartes acceptés : Visa, MasterCard, American Express, Diners Club, Discover, and JCB cards");

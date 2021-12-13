@@ -14,6 +14,8 @@ import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 @Component
@@ -48,7 +50,8 @@ public class OraBankIntegration {
             OraPaymentOrder oraPaymentOrder = new OraPaymentOrder();
             /*SET ORDER*/
             oraPaymentOrder.order.action = environment.oraActionPayment;
-            oraPaymentOrder.order.amount.amount = cardDebitIn.amount ;
+            oraPaymentOrder.order.amount.amount = cardDebitIn.amount.setScale(0, RoundingMode.UP);
+            System.out.println("AMOUNT=>"+oraPaymentOrder.order.amount.amount);
             oraPaymentOrder.order.amount.currencyCode = environment.oraCurrency;
             /*SET PAYMENT INFOS*/
             oraPaymentOrder.payment.pan = cardDebitIn.customerPan;

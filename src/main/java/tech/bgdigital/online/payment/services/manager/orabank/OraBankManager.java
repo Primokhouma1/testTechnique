@@ -183,9 +183,6 @@ public class OraBankManager implements OraBankServiceInterface {
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
-                if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
-                    return new InternalResponse<>(transaction ,true,oraPaymentResponse.authResponse.resultMessage);
-                }
 //                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
 //                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
                 transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
@@ -203,6 +200,9 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
                 transactionItemRepository.saveAll(transactionItemList);
                 transactionRepository.save(transaction);
+                if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
+                    return new InternalResponse<>(transaction ,true,oraPaymentResponse.authResponse.resultMessage);
+                }
                 return new InternalResponse<>(transaction,false,"");
             }
 

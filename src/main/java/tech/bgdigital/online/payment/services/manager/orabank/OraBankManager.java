@@ -12,6 +12,7 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
+import tech.bgdigital.online.payment.services.logs.LogService;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
@@ -43,6 +44,8 @@ public class OraBankManager implements OraBankServiceInterface {
     Environment environment;
     @Autowired
     ValidatorBean validatorBean;
+    @Autowired
+    LogService logService;
 
     ObjectMapper objectMapper = new ObjectMapper();
     public static String APP_KEY ="app-key";
@@ -72,8 +75,8 @@ public class OraBankManager implements OraBankServiceInterface {
             }
             InternalResponse<Transaction> responseInit =  this.initTransaction(cardDebitIn,partner);
             if(responseInit.error){
-                responseApi.code = 403;
-                responseApi.message= responseInit.message;
+                responseApi.code = 500;
+                responseApi.message= Objects.equals(responseInit.message, "") ? "Une erreur est survenue": responseInit.message;
                 responseApi.error = true;
                 responseApi.data = null;
                 this.finishTransaction(responseInit.response,responseInit.message);
@@ -178,6 +181,7 @@ public class OraBankManager implements OraBankServiceInterface {
             //todo call paymentRequest
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
+            logService.debug("ORABANK-PAYMENT-RESPONSE",objectMapper.writeValueAsString(oraPaymentResponse));
             if(restApiPayement.error){
                 //finishTransaction(transaction,restApiPayement.message);
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
@@ -201,6 +205,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionItemRepository.saveAll(transactionItemList);
                 transactionRepository.save(transaction);
                 if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
+                    logService.error("ORABANK-PAYMENT",objectMapper.writeValueAsString(oraPaymentResponse));
                     return new InternalResponse<>(transaction ,true,oraPaymentResponse.authResponse.resultMessage);
                 }
                 return new InternalResponse<>(transaction,false,"");

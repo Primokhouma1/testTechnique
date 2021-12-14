@@ -13,6 +13,7 @@ import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import tech.bgdigital.online.payment.services.logs.LogService;
+import tech.bgdigital.online.payment.services.logs.LogServiceInterface;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
@@ -45,7 +46,7 @@ public class OraBankManager implements OraBankServiceInterface {
     @Autowired
     ValidatorBean validatorBean;
     @Autowired
-    LogService logService;
+    LogServiceInterface logService;
 
     ObjectMapper objectMapper = new ObjectMapper();
     public static String APP_KEY ="app-key";

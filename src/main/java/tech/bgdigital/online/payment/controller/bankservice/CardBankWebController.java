@@ -13,6 +13,7 @@ import tech.bgdigital.online.payment.models.repository.TransactionRepository;
 import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
+import tech.bgdigital.online.payment.services.properties.Environment;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
@@ -25,10 +26,13 @@ public class CardBankWebController {
     OraBankServiceInterface oraBankManager;
     final
     TransactionRepository transactionRepository;
+    final
+    Environment environment;
 
-    public CardBankWebController(OraBankServiceInterface oraBankManager, TransactionRepository transactionRepository) {
+    public CardBankWebController(OraBankServiceInterface oraBankManager, TransactionRepository transactionRepository, Environment environment) {
         this.oraBankManager = oraBankManager;
         this.transactionRepository = transactionRepository;
+        this.environment = environment;
     }
 
     @RequestMapping(value = "3ds/{token}/authentification-request",method = RequestMethod.GET)
@@ -62,7 +66,7 @@ public class CardBankWebController {
         }
         else {
             System.out.println("OK");
-            httpServletResponse.setHeader("Location", " http://localhost:8080/payment/card/redirect/failed-transaction/"+ transaction.getTrxRef() );
+            httpServletResponse.setHeader("Location", " " + environment.platformUrl +"/payment/card/redirect/failed-transaction/"+ transaction.getTrxRef() );
             httpServletResponse.setStatus(302);
         }
     }

@@ -2,6 +2,7 @@ package tech.bgdigital.online.payment.controller.bankservice;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
@@ -21,6 +22,7 @@ import java.util.Objects;
 @Controller
 @RequestMapping("payment/card/redirect")
 @Api(tags = "Page web Paiement par carte",description = ".")
+@Slf4j
 public class CardBankWebController {
     final
     OraBankServiceInterface oraBankManager;
@@ -55,9 +57,9 @@ public class CardBankWebController {
         Response3dsAuth response3dsAuth = new Response3dsAuth();
         response3dsAuth.PaRes = paramMap.get("PaRes").get(0);
         response3dsAuth.MD =  paramMap.get("MD").get(0);
-        System.out.println("TOKEN =>"+token);
-        System.out.println("AAAA =>"+response3dsAuth.MD);
-        System.out.println("AAAA =>"+response3dsAuth.PaRes);
+        log.info("TOKEN =>"+token);
+        log.info("AAAA =>"+response3dsAuth.MD);
+        log.info("AAAA =>"+response3dsAuth.PaRes);
         Transaction transaction = oraBankManager.validate3ds(response3dsAuth,token);
         //{"_id":"urn:payment:cd52aa7d-a152-45c1-a4fc-249538302178","_links":{"self":{"href":"https://api-gateway.sandbox.orabank.ngenius-payments.com/transactions/outlets/d6587b88-96d6-4782-95f4-afcbc1420789/orders/5e05134b-4580-4475-8554-762073d027dc/payments/cd52aa7d-a152-45c1-a4fc-249538302178"},"cnp:cancel":{"href":"https://api-gateway.sandbox.orabank.ngenius-payments.com/transactions/outlets/d6587b88-96d6-4782-95f4-afcbc1420789/orders/5e05134b-4580-4475-8554-762073d027dc/payments/cd52aa7d-a152-45c1-a4fc-249538302178/cancel"},"curies":[{"name":"cnp","href":"https://api-gateway.sandbox.orabank.ngenius-payments.com/docs/rels/{rel}","templated":true}]},"paymentMethod":{"expiry":"2030-03","cardholderName":"Pape Samba","name":"VISA","pan":"401200******1112"},"state":"PURCHASED","amount":{"currencyCode":"XOF","value":1500},"updateDateTime":"2021-11-26T17:51:17.936Z","outletId":"d6587b88-96d6-4782-95f4-afcbc1420789","orderReference":"5e05134b-4580-4475-8554-762073d027dc","authResponse":{"authorizationCode":"AB0012","success":true,"resultCode":"00","resultMessage":"Successful approval/completion or that VIP PIN verification is valid","mid":"2039000044","rrn":"000000123456"},"3ds":{"status":"SUCCESS","eci":"05","eciDescription":"Card holder authenticated","summaryText":"The card-holder has been successfully authenticated by their card issuer."}}
         if(Objects.equals(transaction.getStatus(), Status.SUCCESS)){
@@ -65,7 +67,7 @@ public class CardBankWebController {
             httpServletResponse.setStatus(302);
         }
         else {
-            System.out.println("OK");
+            log.info("OK");
             httpServletResponse.setHeader("Location", " " + environment.platformUrl +"/payment/card/redirect/failed-transaction/"+ transaction.getTrxRef() );
             httpServletResponse.setStatus(302);
         }
@@ -75,7 +77,7 @@ public class CardBankWebController {
     ModelAndView faildedTransaction(@PathVariable("token") String token, HttpServletResponse httpServletResponse){
         ModelAndView modelAndView = new ModelAndView("bankservice/failed-transaction");
         Transaction transaction = this.oraBankManager.getTransaction(token) ;
-        System.out.println("OUT"+token);
+        log.info("OUT"+token);
         boolean process = false;
         if(transaction != null){
             process = transaction.getProccess();

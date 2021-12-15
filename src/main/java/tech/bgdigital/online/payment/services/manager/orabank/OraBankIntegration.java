@@ -2,6 +2,7 @@ package tech.bgdigital.online.payment.services.manager.orabank;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
@@ -19,6 +20,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class OraBankIntegration {
     @Autowired
     Environment environment;
@@ -29,17 +31,17 @@ public class OraBankIntegration {
     ObjectMapper objectMapper = new ObjectMapper();
     public InternalResponse<LoginOraOut> login() {
         try {
-            System.out.println("environment.oraAppKey"+environment.oraAppKey);
-            System.out.println("environment.oraAppKey"+environment.oraBaseUrl);
+            log.info("environment.oraAppKey"+environment.oraAppKey);
+            log.info("environment.oraAppKey"+environment.oraBaseUrl);
             HttpResponse<String> response = Unirest.post(environment.oraBaseUrl + "/identity/auth/access-token")
                     .header("Content-Type", "application/vnd.ni-identity.v1+json")
                     .header("Authorization", "Basic "+  environment.oraAppKey)
                     .asString();
-            System.out.println("Login" + response.getBody());
+            log.info("Login" + response.getBody());
             LoginOraOut loginOut = objectMapper.readValue(response.getBody(), LoginOraOut.class);
             return new InternalResponse<>(loginOut, false, "Login Réussit");
         } catch (Exception e) {
-            System.out.println("Error Login=>"+ e.getMessage());
+            log.info("Error Login=>"+ e.getMessage());
            // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -51,7 +53,7 @@ public class OraBankIntegration {
             /*SET ORDER*/
             oraPaymentOrder.order.action = environment.oraActionPayment;
             oraPaymentOrder.order.amount.amount = cardDebitIn.amount.setScale(0, RoundingMode.UP);
-            System.out.println("AMOUNT=>"+oraPaymentOrder.order.amount.amount);
+            log.info("AMOUNT=>"+oraPaymentOrder.order.amount.amount);
             oraPaymentOrder.order.amount.currencyCode = environment.oraCurrency;
             /*SET PAYMENT INFOS*/
             oraPaymentOrder.payment.pan = cardDebitIn.customerPan;
@@ -68,7 +70,7 @@ public class OraBankIntegration {
             oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
             InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
 
-           // System.out.println("Okkkkkk");
+           // log.info("Okkkkkk");
             if(loginOraOutInternalResponse.error){
                   return new InternalResponse<>(null, true, loginOraOutInternalResponse.message);
             }
@@ -80,12 +82,12 @@ public class OraBankIntegration {
                     .header("Authorization", "Bearer "+  token)
                     .body(objectMapper.writeValueAsString( oraPaymentOrder))
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraPaymentResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraPaymentResponse +>" + response.getBody());
             OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
-            System.out.println("Error Payment=>"+e.getMessage());
+            log.info("Error Payment=>"+e.getMessage());
            // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -108,12 +110,12 @@ public class OraBankIntegration {
                     .header("Authorization", "Bearer "+  token)
                     .body(objectMapper.writeValueAsString( response3dsAuth))
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraValidationResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraValidationResponse +>" + response.getBody());
             OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
-            System.out.println("Error Validation");
+            log.info("Error Validation");
             e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -134,18 +136,18 @@ public class OraBankIntegration {
 //            callbackPartnerRequest.secretKey ="";
             //todo add info callback
             String paramsBody = toQS(callbackPartnerRequest);
-            System.out.println("BODY--"+ paramsBody);
+            log.info("BODY--"+ paramsBody);
             HttpResponse<String> response = Unirest.post(transaction.getCallbackUrl())
 //                    .header("Content-Type", "application/json")
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .body(paramsBody)
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraValidationResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraValidationResponse +>" + response.getBody());
            // CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
             return new InternalResponse<>(response.getBody(), false, "Callback sent successful");
         } catch (Exception e) {
-            System.out.println("Error Validation");
+            log.info("Error Validation");
             e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }

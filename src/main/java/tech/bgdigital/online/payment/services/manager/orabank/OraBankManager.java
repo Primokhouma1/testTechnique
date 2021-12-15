@@ -1,6 +1,7 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
 import tech.bgdigital.online.payment.models.entity.*;
@@ -12,9 +13,6 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
-import tech.bgdigital.online.payment.services.logs.LogService;
-import tech.bgdigital.online.payment.services.logs.LogServiceInterface;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
@@ -26,7 +24,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
+@Slf4j
 public class OraBankManager implements OraBankServiceInterface {
 
     @Autowired
@@ -45,8 +43,6 @@ public class OraBankManager implements OraBankServiceInterface {
     Environment environment;
     @Autowired
     ValidatorBean validatorBean;
-    @Autowired
-    LogServiceInterface logService;
 
     ObjectMapper objectMapper = new ObjectMapper();
     public static String APP_KEY ="app-key";
@@ -182,7 +178,7 @@ public class OraBankManager implements OraBankServiceInterface {
             //todo call paymentRequest
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
-            logService.debug("ORABANK-PAYMENT-RESPONSE",objectMapper.writeValueAsString(oraPaymentResponse));
+            log.debug("ORABANK-PAYMENT-RESPONSE,{}",objectMapper.writeValueAsString(oraPaymentResponse));
             if(restApiPayement.error){
                 //finishTransaction(transaction,restApiPayement.message);
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
@@ -206,7 +202,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionItemRepository.saveAll(transactionItemList);
                 transactionRepository.save(transaction);
                 if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
-                    logService.error("ORABANK-PAYMENT",objectMapper.writeValueAsString(oraPaymentResponse));
+                    log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
                     return new InternalResponse<>(transaction ,true,oraPaymentResponse.authResponse.resultMessage);
                 }
                 return new InternalResponse<>(transaction,false,"");
@@ -299,14 +295,14 @@ public class OraBankManager implements OraBankServiceInterface {
                     transaction.setMessageError("Transaction validé.");
                     transactionRepository.save(transaction);
                     transaction.setStatusCallback(Status.SUCCESS);
-                    System.out.println("SUCCESS CALLBACK");
+                    log.info("SUCCESS CALLBACK");
                 }else {
                     transaction.setCallbackFailedAt(new Date());
                     transaction.setCallbackSended(true);
                     transaction.setCallbackMessageError(resCallback.message);
                     transaction.setStatusCallback(Status.FAILED);
                     transactionRepository.save(transaction);
-                    System.out.println("FAILED CALLBACK");
+                    log.info("FAILED CALLBACK");
                 }
         }
         return transaction;

@@ -184,6 +184,8 @@ public class OraBankManager implements OraBankServiceInterface {
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
+                log.info("STATE ORA REQUEST=>{}",oraPaymentResponse.state);
+                log.info("STATE ORA=>{}",transaction.getStatus());
 //                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
 //                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
                 transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);

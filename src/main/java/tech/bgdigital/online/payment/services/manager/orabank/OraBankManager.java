@@ -209,7 +209,7 @@ public class OraBankManager implements OraBankServiceInterface {
                     log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
                     StringBuilder msg= new StringBuilder();
                     if(!(oraPaymentResponse.message == null) ){
-                        log.error("ERROR VALIDATION PAIEMENT=>{}",oraPaymentResponse.errors);
+                        log.error("ERROR VALIDATION PAIEMENT=>{}",objectMapper.writeValueAsString(oraPaymentResponse.errors));
                         for (ErrorMessage errorMessage:
                              oraPaymentResponse.errors) {
                             msg.append(errorMessage.message).append(". ");

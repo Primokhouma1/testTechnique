@@ -164,7 +164,7 @@ public class AccountStatementController {
 
     /**
      * suppression
-     * modification etat a 2
+     * modification state a DELETED
      */
     @DeleteMapping("{id}")
     @ApiOperation(value = "Supprimer les relevés de compte paginés")
@@ -172,16 +172,11 @@ public class AccountStatementController {
     public Map<String, Object> delete(@PathVariable Integer id) {
         try {
 
-            AccountStatement accountStatement_ = accountStatementRepository.findByIdAndStateNot(id, State.DELETED);
-            if (accountStatement_ == null) {
+            AccountStatement accountStatement = accountStatementRepository.findByIdAndStateNot(id, State.DELETED);
+            if (accountStatement == null) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Cette région n'existe pas");
             } else {
-                AccountStatement accountStatement = new AccountStatement();
-                accountStatement.setId(id);
-                accountStatementRepository.delete(accountStatement_);
-                accountStatement.setState(State.DELETED);
-                accountStatementRepository.save(accountStatement);
-
+                accountStatementRepository.delete(accountStatement);
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), false, "Données supprimé avec success");
             }
         } catch(Exception e) {

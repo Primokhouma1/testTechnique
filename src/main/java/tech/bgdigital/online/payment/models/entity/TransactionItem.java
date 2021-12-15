@@ -11,7 +11,7 @@ import java.util.Date;
         @Index(name = "fk_transaction_items_transactions1_idx", columnList = "transactions_id")
 })
 @Entity
-@SQLDelete(sql = "update transaction_items set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update transaction_items set state = 'DELETED'  where id= ?")
 public class TransactionItem {
     public TransactionItem() {
     }

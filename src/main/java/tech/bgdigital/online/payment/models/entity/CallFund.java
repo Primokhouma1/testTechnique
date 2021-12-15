@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Table(name = "call_funds")
 @Entity
-@SQLDelete(sql = "update call_funds set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update call_funds set state = 'DELETED'  where id= ?")
 public class CallFund {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

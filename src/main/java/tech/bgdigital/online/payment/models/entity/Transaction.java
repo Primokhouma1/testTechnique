@@ -13,7 +13,7 @@ indexes = {
         @Index(name = "trx_ref_UNIQUE", columnList = "trx_ref", unique = true),
 })
 @Entity
-@SQLDelete(sql = "update transactions set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update transactions set state = 'DELETED'  where id= ?")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

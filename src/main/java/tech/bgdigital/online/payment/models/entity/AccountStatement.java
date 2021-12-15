@@ -12,7 +12,7 @@ import java.util.Date;
         @Index(name = "fk_account_statement_transactions1_idx", columnList = "transactions_id")
 })
 @Entity
-@SQLDelete(sql = "update account_statements set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update account_statements set state = 'DELETED'  where id= ?")
 public class AccountStatement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -10,7 +10,7 @@ import java.util.Date;
         @Index(name = "code_UNIQUE", columnList = "code", unique = true)
 })
 @Entity
-@SQLDelete(sql = "update services set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update services set state = 'DELETED'  where id= ?")
 public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

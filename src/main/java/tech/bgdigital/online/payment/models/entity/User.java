@@ -13,7 +13,7 @@ import java.util.Date;
         @Index(name = "fk_users_profils1_idx", columnList = "profils_id")
 })
 @Entity
-@SQLDelete(sql = "update users set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update users set state = 'DELETED'  where id= ?")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

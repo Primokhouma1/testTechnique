@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Table(name = "partners")
 @Entity
-@SQLDelete(sql = "update partners set state = 'DISABLED' where id= ?")
+@SQLDelete(sql = "update partners set state = 'DELETED'  where id= ?")
 public class Partner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

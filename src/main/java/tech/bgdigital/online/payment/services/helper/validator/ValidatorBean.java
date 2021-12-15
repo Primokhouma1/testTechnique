@@ -1,5 +1,6 @@
 package tech.bgdigital.online.payment.services.helper.validator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tech.bgdigital.online.payment.models.entity.Partner;
@@ -12,11 +13,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Component
+@Slf4j
 public class ValidatorBean {
     @Autowired
     TransactionRepository transactionRepository;
     public boolean isAmount(BigDecimal amount){
-        return amount.compareTo(new BigDecimal('1')) > 0;
+        log.info("amount=>"+amount +"=>"+ amount.compareTo(new BigDecimal("1")));
+        return amount.compareTo(new BigDecimal("1")) > 0;
     }
     public boolean isUrl(String url){
         String regex = "\\b(https|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
@@ -74,7 +77,7 @@ public class ValidatorBean {
             for (String itemDate:
                     listNumberString) {
                 Integer number = Integer.valueOf(itemDate);
-                System.out.println(number);
+                log.info(String.valueOf(number));
             }
         }
         catch (NumberFormatException ex){
@@ -85,7 +88,7 @@ public class ValidatorBean {
     private boolean valideNumberString(String numberString) {
         try{
                 Integer number = Integer.valueOf(numberString);
-                System.out.println(number);
+                log.info(String.valueOf(number));
         }
         catch (NumberFormatException ex){
             return false;
@@ -94,9 +97,9 @@ public class ValidatorBean {
     }
     private boolean valideMonthNumber(String numberString) {
         try{
-            System.out.println("NUME"+ numberString);
+            log.info("NUME"+ numberString);
                 Integer number = Integer.valueOf(numberString);
-                System.out.println(number);
+                log.info(String.valueOf(number));
                 if(number < 1 || number > 12){
                     return false ;
                 }
@@ -112,10 +115,10 @@ public class ValidatorBean {
         date1.setMonth(Integer.parseInt(month) -1);
         date1.setYear(Integer.parseInt(year) - 1900);
 
-        System.out.println(date1);
-        System.out.println(date2);
-        System.out.println(year);
-        System.out.println(month);
+        log.info(String.valueOf(date1));
+        log.info(String.valueOf(date2));
+        log.info(year);
+        log.info(month);
         return date1.compareTo(date2) >= 0;
     }
     public boolean isExisteTransactionNumber(String trxNumer, Partner partner){

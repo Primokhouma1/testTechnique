@@ -1,6 +1,10 @@
 package tech.bgdigital.online.payment.services.manager.orabank.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import tech.bgdigital.online.payment.models.enumeration.Status;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class OraPaymentResponse {
@@ -11,10 +15,10 @@ public class OraPaymentResponse {
     public OraLink link = new OraLink();
 
     @JsonProperty("paymentMethod")
-    public OraPayment paymentMethod;
+    public OraPayment paymentMethod = new OraPayment();
 
     @JsonProperty("state")
-    public String state;
+    public String state = Status.FAILED;
 
     @JsonProperty("amount")
     public OraAmount amount =  new OraAmount();
@@ -33,5 +37,11 @@ public class OraPaymentResponse {
 
     @JsonProperty("authResponse")
     public AuthResponse authResponse = new AuthResponse();
+
+    //
+   public String message;
+   public String code;
+   public ErrorMessage[] errors ;
+    //{"message":"Unprocessable Entity","code":422,"errors":[{"message":"invalid credit card number","localizedMessage":"Invalid Card Number","location":"pan","errorCode":"invalidPan","domain":"processing"}]}
 
 }

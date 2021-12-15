@@ -1,0 +1,19 @@
+[Unit]
+Description=Service de paiement par carte bancaire
+After=syslog.target network.target
+
+[Service]
+SuccessExitStatus=143
+
+User=root
+Group=root
+
+Type=simple
+
+Environment="JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64"
+WorkingDirectory=/var/www/html/site/bank-finance-prod/services/bank_online_payment
+ExecStart=/usr/bin/java -jar online_payment_service.jar
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

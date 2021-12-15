@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.bgdigital.online.payment.models.constant.ApiService;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
-import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitOut;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
 import tech.bgdigital.online.payment.services.manager.orabank.OraBankServiceInterface;
@@ -42,15 +42,15 @@ public class CardBankController {
         this.oraBankManager = oraBankManager;
     }
     @ApiOperation(value = "Cette methode permet de débiter une carte visa ou master card d'un client.")
-    @PostMapping(value = "debit/{service}")
+    @PostMapping(value = "debit/{operateur}")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success|OK",response = CardDebitIn.class),
             @ApiResponse(code = 401, message = "not authorized!"),
             @ApiResponse(code = 403, message = "forbidden!!!"),
             @ApiResponse(code = 404, message = "not found!!!") })
-    public ResponseApi<Object> debitCard(@PathVariable(value = "service") String service, @RequestBody CardDebitIn cardDebitIn){
+    public ResponseApi<Object> debitCard(@PathVariable(value = "operateur") String operateur, @RequestBody CardDebitIn cardDebitIn){
         ResponseApi<Object> responseApi = new ResponseApi<>();
-        if (ApiService.ORA_BANK.equals(service)) {
+        if (ApiService.ORA_BANK.equals(operateur)) {
             responseApi = oraBankManager.debitCard(cardDebitIn, request);
         } else {
             responseApi.data = null;

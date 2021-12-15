@@ -2,37 +2,46 @@ package tech.bgdigital.online.payment.services.manager.orabank;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
+import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.entity.TransactionItem;
+import tech.bgdigital.online.payment.models.repository.PartnerRepository;
 import tech.bgdigital.online.payment.models.repository.TransactionItemRepository;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class OraBankIntegration {
     @Autowired
     Environment environment;
     @Autowired
     TransactionItemRepository transactionItemRepository;
+    @Autowired
+    PartnerRepository partnerRepository;
     ObjectMapper objectMapper = new ObjectMapper();
     public InternalResponse<LoginOraOut> login() {
         try {
-           // System.out.println("environment.oraAppKey"+environment.oraAppKey);
+            log.info("environment.oraAppKey"+environment.oraAppKey);
+            log.info("environment.oraAppKey"+environment.oraBaseUrl);
             HttpResponse<String> response = Unirest.post(environment.oraBaseUrl + "/identity/auth/access-token")
                     .header("Content-Type", "application/vnd.ni-identity.v1+json")
                     .header("Authorization", "Basic "+  environment.oraAppKey)
                     .asString();
-            System.out.println("Login" + response.getBody());
+            log.info("Login" + response.getBody());
             LoginOraOut loginOut = objectMapper.readValue(response.getBody(), LoginOraOut.class);
             return new InternalResponse<>(loginOut, false, "Login Réussit");
         } catch (Exception e) {
-            System.out.println("Error Login=>"+ e.getMessage());
+            log.info("Error Login=>"+ e.getMessage());
            // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -43,7 +52,8 @@ public class OraBankIntegration {
             OraPaymentOrder oraPaymentOrder = new OraPaymentOrder();
             /*SET ORDER*/
             oraPaymentOrder.order.action = environment.oraActionPayment;
-            oraPaymentOrder.order.amount.amount = cardDebitIn.amount ;
+            oraPaymentOrder.order.amount.amount = cardDebitIn.amount.setScale(0, RoundingMode.UP);
+            log.info("AMOUNT=>"+oraPaymentOrder.order.amount.amount);
             oraPaymentOrder.order.amount.currencyCode = environment.oraCurrency;
             /*SET PAYMENT INFOS*/
             oraPaymentOrder.payment.pan = cardDebitIn.customerPan;
@@ -51,16 +61,16 @@ public class OraBankIntegration {
             oraPaymentOrder.payment.expiry = cardDebitIn.customerExpiredCard;
             oraPaymentOrder.payment.cardholderName = cardDebitIn.customerCardholderName;
             /*SET MERCHANT*/
-            oraPaymentOrder.language = environment.oraLang;
-            oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
-            oraPaymentOrder.merchantAttributes.skip3DS = false;
-            oraPaymentOrder.merchantAttributes.skipConfirmationPage = false;
-            oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
-            oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
-            oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
+//            oraPaymentOrder.language = environment.oraLang;
+        //    oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
+          //  oraPaymentOrder.merchantAttributes.skip3DS = true;
+          //  oraPaymentOrder.merchantAttributes.skipConfirmationPage = true;
+           // oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
+           // oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
+          //  oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
             InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
 
-           // System.out.println("Okkkkkk");
+           // log.info("Okkkkkk");
             if(loginOraOutInternalResponse.error){
                   return new InternalResponse<>(null, true, loginOraOutInternalResponse.message);
             }
@@ -72,12 +82,12 @@ public class OraBankIntegration {
                     .header("Authorization", "Bearer "+  token)
                     .body(objectMapper.writeValueAsString( oraPaymentOrder))
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraPaymentResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraPaymentResponse +>" + response.getBody());
             OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
-            System.out.println("Error Payment=>"+e.getMessage());
+            log.info("Error Payment=>"+e.getMessage());
            // e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -100,12 +110,12 @@ public class OraBankIntegration {
                     .header("Authorization", "Bearer "+  token)
                     .body(objectMapper.writeValueAsString( response3dsAuth))
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraValidationResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraValidationResponse +>" + response.getBody());
             OraPaymentResponse oraPaymentResponse = objectMapper.readValue(response.getBody(), OraPaymentResponse.class);
             return new InternalResponse<>(oraPaymentResponse, false, "");
         } catch (Exception e) {
-            System.out.println("Error Validation");
+            log.info("Error Validation");
             e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }
@@ -116,25 +126,28 @@ public class OraBankIntegration {
             CallbackPartnerRequest callbackPartnerRequest = new CallbackPartnerRequest();
             callbackPartnerRequest.amount =transaction.getAmountTrx();
             callbackPartnerRequest.status =transaction.getStatus();
-            callbackPartnerRequest.transactionID =transaction.getPartenerTrxRef();
-            callbackPartnerRequest.transactionNumber =transaction.getTrxRef();
+            callbackPartnerRequest.transactionID = transaction.getTrxRef();
+            callbackPartnerRequest.transactionNumber = transaction.getPartenerTrxRef();
             callbackPartnerRequest.cardType =transaction.getCustomerCardType();
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
+            Partner partner = transaction.getPartners();
+//            callbackPartnerRequest.appKey = partnerRepository.findById(transaction.getPartne);
+//            callbackPartnerRequest.secretKey ="";
             //todo add info callback
             String paramsBody = toQS(callbackPartnerRequest);
-            System.out.println("BODY--"+ paramsBody);
+            log.info("BODY--"+ paramsBody);
             HttpResponse<String> response = Unirest.post(transaction.getCallbackUrl())
 //                    .header("Content-Type", "application/json")
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .body(paramsBody)
                     .asString();
-            //System.out.println("token =>" + token);
-            System.out.println("oraValidationResponse +>" + response.getBody());
+            //log.info("token =>" + token);
+            log.info("oraValidationResponse +>" + response.getBody());
            // CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
             return new InternalResponse<>(response.getBody(), false, "Callback sent successful");
         } catch (Exception e) {
-            System.out.println("Error Validation");
+            log.info("Error Validation");
             e.printStackTrace();
             return new InternalResponse<>(null, true, e.getMessage());
         }

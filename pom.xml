@@ -16,6 +16,8 @@
     <description>online-payment-service</description>
     <properties>
         <java.version>11</java.version>
+        <source>11</source>
+        <target>11</target>
     </properties>
     <dependencies>
         <dependency>
@@ -76,40 +78,26 @@
         </dependency>
         <!--VALIDATION-->
 
-        <!--THEAMLEAF-->
+        <!--THYMELEAF-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        <!--THEAMLYF-->
+        <!--THERMALLY-->
     </dependencies>
 
     <build>
+        <finalName>online_payment_service</finalName>
         <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-resources-plugin</artifactId>-->
+<!--                <version>3.1.0</version>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>online_payment_service</finalName>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
-
 </project>

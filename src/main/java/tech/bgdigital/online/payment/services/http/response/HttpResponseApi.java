@@ -13,7 +13,7 @@ public class HttpResponseApi implements HttpResponseApiInterface{
         response.put("data", data);
         response.put("code", code == null ? 201 : code);
         response.put("error", error);
-        response.put("message", message == null ? "Donnée(s) disponible" : ( message.equals("") ? "Donnée(s) disponible" : message));
+        response.put("message", message == null ? "Traitement non aboutit" : ( message.equals("") ? "Traitement non aboutit" : message));
         return  response ;
     }
     public Map<String, Object> paginate(Object data, Page pageTuts ){

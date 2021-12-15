@@ -72,7 +72,7 @@ public class AccountStatementController {
 
         try {
 
-            if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+            if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }
 

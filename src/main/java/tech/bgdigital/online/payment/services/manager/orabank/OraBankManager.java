@@ -1,6 +1,7 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import tech.bgdigital.online.payment.models.dto.bankservice.CardDebitIn;
 import tech.bgdigital.online.payment.models.entity.*;
@@ -12,19 +13,21 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
-import tech.bgdigital.online.payment.services.manager.orabank.dto.CallbackPartnerResponse;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.ErrorMessage;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
 import tech.bgdigital.online.payment.services.properties.Environment;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
+@Slf4j
 public class OraBankManager implements OraBankServiceInterface {
 
     @Autowired
@@ -72,7 +75,7 @@ public class OraBankManager implements OraBankServiceInterface {
             }
             InternalResponse<Transaction> responseInit =  this.initTransaction(cardDebitIn,partner);
             if(responseInit.error){
-                responseApi.code = 403;
+                responseApi.code = 500;
                 responseApi.message= responseInit.message;
                 responseApi.error = true;
                 responseApi.data = null;
@@ -83,7 +86,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 response.put("status",transaction.getStatus());
                 response.put("transactionID",transaction.getTrxRef());
                 response.put("transactionNumber",transaction.getPartenerTrxRef());
-                response.put("3dsUrl",environment.platformUrl + "/payment/card/redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
+                response.put("url3ds",environment.platformUrl + "/payment/card/redirect/3ds/" + transaction.getTrxRef() + "/authentification-request"   );
                 responseApi.data = response;
             }
 
@@ -178,15 +181,20 @@ public class OraBankManager implements OraBankServiceInterface {
             //todo call paymentRequest
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
+            log.debug("ORABANK-PAYMENT-RESPONSE->,{}",objectMapper.writeValueAsString(restApiPayement));
+            transaction.setResponseJson(objectMapper.writeValueAsString(restApiPayement));
             if(restApiPayement.error){
+                log.error("ERROR API PAYMENT =>{}",restApiPayement);
                 //finishTransaction(transaction,restApiPayement.message);
+                transactionRepository.save(transaction);
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
-//                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
-//                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
+                log.info("STATE ORA REQUEST=>{}",oraPaymentResponse.state);
+                log.info("STATE ORA=>{}",transaction.getStatus());
                 transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
                 transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
+                transactionRepository.save(transaction);
                 //todo set Transaction item
                 List<TransactionItem> transactionItemList = new ArrayList<>();
                 transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
@@ -200,13 +208,54 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
                 transactionItemRepository.saveAll(transactionItemList);
                 transactionRepository.save(transaction);
+//                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
+//                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
+
+                if(!Objects.equals(transaction.getStatus(), Status.PENDING) && !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
+                    log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
+                    StringBuilder msg= new StringBuilder();
+                    if(!(oraPaymentResponse.message == null) ){
+                        log.error("ERROR VALIDATION PAIEMENT=>{}",objectMapper.writeValueAsString(oraPaymentResponse.errors));
+                        for (ErrorMessage errorMessage:
+                             oraPaymentResponse.errors) {
+                            switch (errorMessage.message){
+                                case "must be a date in the present or in the future":
+                                    msg.append("La date d'expiration invalide").append(". ");
+                                    break;
+                                case "invalid credit card number":
+                                    msg.append("Numéro de carte de crédit invalide").append(". ");
+                                    break;
+                                default:
+                                    msg.append(errorMessage.message).append(". ");
+                            }
+
+                        }
+
+                    }else {
+                         msg = new StringBuilder(oraPaymentResponse.ora3ds.summaryText);
+                        if(Objects.equals(oraPaymentResponse.ora3ds.summaryText, "Authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS.")){
+                            msg = new StringBuilder("L'authentification a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS");
+                        }
+                        if(Objects.equals(oraPaymentResponse.ora3ds.summaryText, "3DS authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS, or cardholder ran out of time to authorize.")){
+                            msg = new StringBuilder("L'authentification 3DS a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS, ou que le titulaire de la carte n'a pas eu le temps d'autoriser.");
+                        }
+                    }
+
+
+                    return new InternalResponse<>(transaction ,true, msg.toString());
+                }
+                log.info("SUCCESS INIT TRANSACTION");
                 return new InternalResponse<>(transaction,false,"");
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-           // finishTransaction(transaction);
-            return new InternalResponse<>(transaction ,true,e.getMessage());
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+
+            // finishTransaction(transaction);
+            log.error("ERROR CACHED INIT PAYMENT {}",exceptionAsString);
+            return new InternalResponse<>(transaction ,true,e.getMessage() == null ? "Une erreur est survenue" : e.getMessage() );
         }
     }
     public void finishTransaction(Transaction transaction){
@@ -290,14 +339,14 @@ public class OraBankManager implements OraBankServiceInterface {
                     transaction.setMessageError("Transaction validé.");
                     transactionRepository.save(transaction);
                     transaction.setStatusCallback(Status.SUCCESS);
-                    System.out.println("SUCCESS CALLBACK");
+                    log.info("SUCCESS CALLBACK");
                 }else {
                     transaction.setCallbackFailedAt(new Date());
                     transaction.setCallbackSended(true);
                     transaction.setCallbackMessageError(resCallback.message);
                     transaction.setStatusCallback(Status.FAILED);
                     transactionRepository.save(transaction);
-                    System.out.println("FAILED CALLBACK");
+                    log.info("FAILED CALLBACK");
                 }
         }
         return transaction;
@@ -330,10 +379,10 @@ public class OraBankManager implements OraBankServiceInterface {
             error =true;
             validations.put("customerExpiredCard","La date d'expiration n'est pas valide. Format : 2030-03");
         }
-        if(!validatorBean.isAddress(cardDebitIn.customerAddress)){
-            error =true;
-            validations.put("customerAddress","L'adresse n'est pas valide.");
-        }
+//        if(!validatorBean.isAddress(cardDebitIn.customerAddress)){
+//            error =true;
+//            validations.put("customerAddress","L'adresse n'est pas valide.");
+//        }
         if(!validatorBean.isPan(cardDebitIn.customerPan)){
             error =true;
             validations.put("customerPan","Le numéro de la carte n'est pas valide. Cartes acceptés : Visa, MasterCard, American Express, Diners Club, Discover, and JCB cards");

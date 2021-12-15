@@ -20,6 +20,8 @@ import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAut
 import tech.bgdigital.online.payment.services.properties.Environment;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -231,9 +233,12 @@ public class OraBankManager implements OraBankServiceInterface {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-           // finishTransaction(transaction);
-            log.error("ERROR CACHED INIT PAYMENT {}",e.getMessage());
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+
+            // finishTransaction(transaction);
+            log.error("ERROR CACHED INIT PAYMENT {}",exceptionAsString);
             return new InternalResponse<>(transaction ,true,e.getMessage() == null ? "Une erreur est survenue" : e.getMessage() );
         }
     }

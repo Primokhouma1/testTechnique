@@ -63,7 +63,7 @@ public class OraBankIntegration {
             /*SET MERCHANT*/
             oraPaymentOrder.language = environment.oraLang;
             oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
-            oraPaymentOrder.merchantAttributes.skip3DS = true;
+            oraPaymentOrder.merchantAttributes.skip3DS = false;
             oraPaymentOrder.merchantAttributes.skipConfirmationPage = false;
             oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
             oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;

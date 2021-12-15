@@ -192,6 +192,8 @@ public class OraBankManager implements OraBankServiceInterface {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
                 log.info("STATE ORA REQUEST=>{}",oraPaymentResponse.state);
                 log.info("STATE ORA=>{}",transaction.getStatus());
+                transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
+                transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
                 transactionRepository.save(transaction);
                 //todo set Transaction item
                 List<TransactionItem> transactionItemList = new ArrayList<>();
@@ -238,8 +240,7 @@ public class OraBankManager implements OraBankServiceInterface {
                             msg = new StringBuilder("L'authentification 3DS a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS, ou que le titulaire de la carte n'a pas eu le temps d'autoriser.");
                         }
                     }
-                    transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
-                    transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
+
 
                     return new InternalResponse<>(transaction ,true, msg.toString());
                 }

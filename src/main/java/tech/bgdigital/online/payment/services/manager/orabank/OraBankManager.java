@@ -232,7 +232,7 @@ public class OraBankManager implements OraBankServiceInterface {
             e.printStackTrace();
            // finishTransaction(transaction);
             log.error("ERROR CACHED INIT PAYMENT {}",e.getMessage());
-            return new InternalResponse<>(transaction ,true,e.getMessage());
+            return new InternalResponse<>(transaction ,true,e.getMessage() == null ? "Une erreur est survenue" : e.getMessage() );
         }
     }
     public void finishTransaction(Transaction transaction){

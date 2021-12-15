@@ -73,7 +73,7 @@ public class OraBankManager implements OraBankServiceInterface {
             InternalResponse<Transaction> responseInit =  this.initTransaction(cardDebitIn,partner);
             if(responseInit.error){
                 responseApi.code = 500;
-                responseApi.message= Objects.equals(responseInit.message, "") ? "Une erreur est survenue": responseInit.message;
+                responseApi.message= responseInit.message;
                 responseApi.error = true;
                 responseApi.data = null;
                 this.finishTransaction(responseInit.response,responseInit.message);
@@ -203,7 +203,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionRepository.save(transaction);
                 if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
                     log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
-                    return new InternalResponse<>(transaction ,true,oraPaymentResponse.authResponse.resultMessage);
+                    return new InternalResponse<>(transaction ,true,oraPaymentResponse.ora3ds.summaryText);
                 }
                 return new InternalResponse<>(transaction,false,"");
             }

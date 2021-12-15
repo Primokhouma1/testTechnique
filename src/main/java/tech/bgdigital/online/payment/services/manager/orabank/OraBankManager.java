@@ -221,6 +221,7 @@ public class OraBankManager implements OraBankServiceInterface {
                     }
                     return new InternalResponse<>(transaction ,true, msg.toString());
                 }
+                log.info("SUCCESS INIT TRANSACTION");
                 return new InternalResponse<>(transaction,false,"");
             }
 

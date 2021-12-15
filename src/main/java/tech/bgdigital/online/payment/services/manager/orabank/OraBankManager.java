@@ -203,7 +203,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
                 transactionItemRepository.saveAll(transactionItemList);
                 transactionRepository.save(transaction);
-                if(!Objects.equals(transaction.getStatus(), Status.PENDING) || !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
+                if(!Objects.equals(transaction.getStatus(), Status.PENDING) && !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
                     log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
                     String msg=oraPaymentResponse.ora3ds.summaryText;
                     if(Objects.equals(msg, "Authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS.")){

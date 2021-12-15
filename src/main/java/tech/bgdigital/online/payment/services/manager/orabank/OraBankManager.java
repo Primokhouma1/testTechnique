@@ -181,6 +181,7 @@ public class OraBankManager implements OraBankServiceInterface {
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
             log.debug("ORABANK-PAYMENT-RESPONSE,{}",objectMapper.writeValueAsString(restApiPayement));
             if(restApiPayement.error){
+                log.error("ERROR API PAYMENT =>{}",restApiPayement);
                 //finishTransaction(transaction,restApiPayement.message);
                 return new InternalResponse<>(transaction,true,restApiPayement.message);
             }else {

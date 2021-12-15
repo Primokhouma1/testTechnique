@@ -61,13 +61,13 @@ public class OraBankIntegration {
             oraPaymentOrder.payment.expiry = cardDebitIn.customerExpiredCard;
             oraPaymentOrder.payment.cardholderName = cardDebitIn.customerCardholderName;
             /*SET MERCHANT*/
-            oraPaymentOrder.language = environment.oraLang;
-            oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
-            oraPaymentOrder.merchantAttributes.skip3DS = false;
-            oraPaymentOrder.merchantAttributes.skipConfirmationPage = false;
-            oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
-            oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
-            oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
+//            oraPaymentOrder.language = environment.oraLang;
+        //    oraPaymentOrder.merchantOrderReference = transaction.getTrxRef();
+          //  oraPaymentOrder.merchantAttributes.skip3DS = true;
+          //  oraPaymentOrder.merchantAttributes.skipConfirmationPage = true;
+           // oraPaymentOrder.merchantAttributes.redirectUrl = cardDebitIn.redirectUrl;
+           // oraPaymentOrder.merchantAttributes.cancelUrl =  environment.oraActionCancelUrl;;
+          //  oraPaymentOrder.merchantAttributes.cancelText = environment.oraActionCancelText;
             InternalResponse<LoginOraOut> loginOraOutInternalResponse=login();;
 
            // log.info("Okkkkkk");

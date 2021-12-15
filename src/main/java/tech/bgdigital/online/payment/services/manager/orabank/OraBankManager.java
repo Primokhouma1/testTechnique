@@ -236,7 +236,7 @@ public class OraBankManager implements OraBankServiceInterface {
                         if(Objects.equals(oraPaymentResponse.ora3ds.summaryText, "Authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS.")){
                             msg = new StringBuilder("L'authentification a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS");
                         }
-                        if(Objects.equals(oraPaymentResponse.ora3ds.summaryText, "3DS authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS, or cardholder ran out of time to authorize")){
+                        if(Objects.equals(oraPaymentResponse.ora3ds.summaryText, "3DS authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS, or cardholder ran out of time to authorize.")){
                             msg = new StringBuilder("L'authentification 3DS a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS, ou que le titulaire de la carte n'a pas eu le temps d'autoriser.");
                         }
                     }

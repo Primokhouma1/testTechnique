@@ -188,23 +188,10 @@ public class OraBankManager implements OraBankServiceInterface {
                 transaction.setStatus(Status.getState(oraPaymentResponse.state));
                 log.info("STATE ORA REQUEST=>{}",oraPaymentResponse.state);
                 log.info("STATE ORA=>{}",transaction.getStatus());
+                transactionRepository.save(transaction);
 //                transaction.setCustomerCardExpiry(oraPaymentResponse.paymentMethod.expiry);
 //                transaction.setCustomerCardCardholderName(oraPaymentResponse.paymentMethod.cardholderName);
-                transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
-                transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
-                //todo set Transaction item
-                List<TransactionItem> transactionItemList = new ArrayList<>();
-                transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraOutletIdName,oraPaymentResponse.outletId,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.id,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraCnp3dsUrlName,oraPaymentResponse.link.cnp3ds.href,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraSelfTrxUrl,oraPaymentResponse.link.self.href,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraAcsUrl,oraPaymentResponse.ora3ds.acsUrl,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraAcsPaReq,oraPaymentResponse.ora3ds.acsPaReq,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraAcsMd,oraPaymentResponse.ora3ds.acsMd,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
-                transactionItemRepository.saveAll(transactionItemList);
-                transactionRepository.save(transaction);
+
                 if(!Objects.equals(transaction.getStatus(), Status.PENDING) && !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
                     log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
                     StringBuilder msg= new StringBuilder();
@@ -220,6 +207,21 @@ public class OraBankManager implements OraBankServiceInterface {
                             msg = new StringBuilder("L'authentification a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS");
                         }
                     }
+                    transaction.setCustomerCardType(oraPaymentResponse.paymentMethod.name);
+                    transaction.setCustomerCardPan(oraPaymentResponse.paymentMethod.pan);
+                    //todo set Transaction item
+                    List<TransactionItem> transactionItemList = new ArrayList<>();
+                    transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraOutletIdName,oraPaymentResponse.outletId,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.id,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraCnp3dsUrlName,oraPaymentResponse.link.cnp3ds.href,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraSelfTrxUrl,oraPaymentResponse.link.self.href,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraAcsUrl,oraPaymentResponse.ora3ds.acsUrl,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraAcsPaReq,oraPaymentResponse.ora3ds.acsPaReq,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraAcsMd,oraPaymentResponse.ora3ds.acsMd,transaction));
+                    transactionItemList.add(new TransactionItem(environment.oraSummaryText,oraPaymentResponse.ora3ds.summaryText,transaction));
+                    transactionItemRepository.saveAll(transactionItemList);
+                    transactionRepository.save(transaction);
                     return new InternalResponse<>(transaction ,true, msg.toString());
                 }
                 log.info("SUCCESS INIT TRANSACTION");

@@ -210,7 +210,7 @@ public class OraBankManager implements OraBankServiceInterface {
                     if(!oraPaymentResponse.message.isEmpty() ){
                         for (ErrorMessage errorMessage:
                              oraPaymentResponse.errors) {
-                            msg.append(errorMessage.message);
+                            msg.append(errorMessage.message).append(". ");
                         }
 
                     }else {

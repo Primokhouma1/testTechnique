@@ -1,6 +1,7 @@
 package tech.bgdigital.online.payment.services.manager.orabank.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import tech.bgdigital.online.payment.models.enumeration.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class OraPaymentResponse {
     public OraPayment paymentMethod;
 
     @JsonProperty("state")
-    public String state;
+    public String state = Status.FAILED;
 
     @JsonProperty("amount")
     public OraAmount amount =  new OraAmount();

@@ -13,6 +13,7 @@ import tech.bgdigital.online.payment.services.helper.generator.RandomString;
 import tech.bgdigital.online.payment.services.helper.validator.ValidatorBean;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.http.response.ResponseApi;
+import tech.bgdigital.online.payment.services.manager.orabank.dto.ErrorMessage;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.OraPaymentResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Request3dsAuth;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.Response3dsAuth;
@@ -205,11 +206,20 @@ public class OraBankManager implements OraBankServiceInterface {
                 transactionRepository.save(transaction);
                 if(!Objects.equals(transaction.getStatus(), Status.PENDING) && !Objects.equals(transaction.getStatus(), Status.SUCCESS)){
                     log.info("ORABANK-PAYMENT=> {}",objectMapper.writeValueAsString(oraPaymentResponse));
-                    String msg=oraPaymentResponse.ora3ds.summaryText;
-                    if(Objects.equals(msg, "Authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS.")){
-                        msg = "L'authentification a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS";
+                    StringBuilder msg= new StringBuilder();
+                    if(!oraPaymentResponse.message.isEmpty() ){
+                        for (ErrorMessage errorMessage:
+                             oraPaymentResponse.errors) {
+                            msg.append(errorMessage.message);
+                        }
+
+                    }else {
+                         msg = new StringBuilder(oraPaymentResponse.ora3ds.summaryText);
+                        if(Objects.equals(msg.toString(), "Authentication was attempted but was not or could not be completed; possible reasons being either the card or its Issuing Bank has yet to participate in 3DS.")){
+                            msg = new StringBuilder("L'authentification a été tentée mais n'a pas été ou n'a pas pu être effectuée ; les raisons possibles étant que la carte ou sa banque émettrice n'a pas encore participé à 3DS");
+                        }
                     }
-                    return new InternalResponse<>(transaction ,true,msg);
+                    return new InternalResponse<>(transaction ,true, msg.toString());
                 }
                 return new InternalResponse<>(transaction,false,"");
             }

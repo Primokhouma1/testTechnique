@@ -2,6 +2,9 @@ package tech.bgdigital.online.payment.services.manager.orabank.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class OraPaymentResponse {
     @JsonProperty("_id")
@@ -33,5 +36,11 @@ public class OraPaymentResponse {
 
     @JsonProperty("authResponse")
     public AuthResponse authResponse = new AuthResponse();
+
+    //
+   public String message;
+   public String code;
+   public List<ErrorMessage> errors = new ArrayList<>();
+    //{"message":"Unprocessable Entity","code":422,"errors":[{"message":"invalid credit card number","localizedMessage":"Invalid Card Number","location":"pan","errorCode":"invalidPan","domain":"processing"}]}
 
 }

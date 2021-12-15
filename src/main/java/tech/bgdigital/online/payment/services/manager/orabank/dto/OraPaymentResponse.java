@@ -15,7 +15,7 @@ public class OraPaymentResponse {
     public OraLink link = new OraLink();
 
     @JsonProperty("paymentMethod")
-    public OraPayment paymentMethod;
+    public OraPayment paymentMethod = new OraPayment();
 
     @JsonProperty("state")
     public String state = Status.FAILED;

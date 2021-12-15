@@ -229,6 +229,7 @@ public class OraBankManager implements OraBankServiceInterface {
         } catch (Exception e) {
             e.printStackTrace();
            // finishTransaction(transaction);
+            log.error("ERROR CACHED INIT PAYMENT {}",e.getMessage());
             return new InternalResponse<>(transaction ,true,e.getMessage());
         }
     }

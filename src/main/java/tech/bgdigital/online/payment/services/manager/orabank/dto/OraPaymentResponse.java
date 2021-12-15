@@ -40,7 +40,7 @@ public class OraPaymentResponse {
     //
    public String message;
    public String code;
-   public List<ErrorMessage> errors = new ArrayList<>();
+   public List<ErrorMessage> errors ;
     //{"message":"Unprocessable Entity","code":422,"errors":[{"message":"invalid credit card number","localizedMessage":"Invalid Card Number","location":"pan","errorCode":"invalidPan","domain":"processing"}]}
 
 }

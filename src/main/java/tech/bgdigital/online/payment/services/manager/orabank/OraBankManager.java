@@ -179,7 +179,7 @@ public class OraBankManager implements OraBankServiceInterface {
             //todo call paymentRequest
             InternalResponse<OraPaymentResponse> restApiPayement = oraBankIntegration.payment(cardDebitIn,transaction);
             OraPaymentResponse oraPaymentResponse = restApiPayement.response;
-            log.debug("ORABANK-PAYMENT-RESPONSE,{}",objectMapper.writeValueAsString(oraPaymentResponse));
+            log.debug("ORABANK-PAYMENT-RESPONSE,{}",objectMapper.writeValueAsString(restApiPayement));
             if(restApiPayement.error){
                 //finishTransaction(transaction,restApiPayement.message);
                 return new InternalResponse<>(transaction,true,restApiPayement.message);

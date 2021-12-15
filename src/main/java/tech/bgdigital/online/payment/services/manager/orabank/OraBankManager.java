@@ -216,7 +216,17 @@ public class OraBankManager implements OraBankServiceInterface {
                         log.error("ERROR VALIDATION PAIEMENT=>{}",objectMapper.writeValueAsString(oraPaymentResponse.errors));
                         for (ErrorMessage errorMessage:
                              oraPaymentResponse.errors) {
-                            msg.append(errorMessage.message).append(". ");
+                            switch (errorMessage.message){
+                                case "must be a date in the present or in the future":
+                                    msg.append("La date d'expiration invalide").append(". ");
+                                    break;
+                                case "invalid credit card number. must be a date in the present or in the future":
+                                    msg.append("Numéro de carte de crédit invalide. doit être une date dans le présent ou dans le futur").append(". ");
+                                    break;
+                                default:
+                                    msg.append(errorMessage.message).append(". ");
+                            }
+
                         }
 
                     }else {

@@ -32,8 +32,8 @@ public class OraPaymentResponse {
     @JsonProperty("orderReference")
     public String orderReference;
 
-//    @JsonProperty("reference")
-//    public String reference;
+    @JsonProperty("reference")
+    public String reference;
 
     @JsonProperty("3ds")
     public Ora3ds ora3ds = new Ora3ds();

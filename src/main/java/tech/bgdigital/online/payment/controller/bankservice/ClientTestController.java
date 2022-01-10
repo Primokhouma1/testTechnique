@@ -47,6 +47,18 @@ public class ClientTestController {
   "redirectUrl": "https://pdg-dev.com",
   "transactionNumber": "1000200012"
 }
+      {
+            "amount": 100,
+            "callBackUrl": "https://localhost:9090/ipn.php",
+            "customerAddress": "Dakar Sebegal",
+            "customerCardholderName": "Pape Samba",
+            "customerCvv": "883",
+            "customerExpiredCard": "2022-10",
+            "customerPan": "5287350230372585",
+            "redirectUrl": "http://localhost:9090/client/success.php",
+            "transactionNumber": "1000010004",
+            "customerPhone":"777293282"
+        }
 
 
 */

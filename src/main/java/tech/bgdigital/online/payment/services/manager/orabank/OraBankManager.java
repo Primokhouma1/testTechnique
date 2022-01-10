@@ -1,5 +1,6 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class OraBankManager implements OraBankServiceInterface {
     @Autowired
     ValidatorBean validatorBean;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     public static String APP_KEY ="app-key";
     public static String SECRETE_KEY ="secrete-key";
     public static String SERVICE_CODE ="ORA_BANK_CARD";

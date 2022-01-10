@@ -1,4 +1,5 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -28,7 +29,7 @@ public class OraBankIntegration {
     TransactionItemRepository transactionItemRepository;
     @Autowired
     PartnerRepository partnerRepository;
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     public InternalResponse<LoginOraOut> login() {
         try {
             log.info("environment.oraAppKey"+environment.oraAppKey);

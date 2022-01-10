@@ -200,7 +200,7 @@ public class OraBankManager implements OraBankServiceInterface {
                 List<TransactionItem> transactionItemList = new ArrayList<>();
                 transactionItemList.add(new TransactionItem(environment.oraOrderReferenceName,oraPaymentResponse.orderReference,transaction));
                 transactionItemList.add(new TransactionItem(environment.oraOutletIdName,oraPaymentResponse.outletId,transaction));
-                transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.id,transaction));
+                transactionItemList.add(new TransactionItem(environment.oraPaymentReferenceName,oraPaymentResponse.reference != null ? oraPaymentResponse.reference :  oraPaymentResponse.id,transaction));
                 transactionItemList.add(new TransactionItem(environment.oraCnp3dsUrlName,oraPaymentResponse.link.cnp3ds.href,transaction));
                 transactionItemList.add(new TransactionItem(environment.oraSelfTrxUrl,oraPaymentResponse.link.self.href,transaction));
                 transactionItemList.add(new TransactionItem(environment.oraAcsUrl,oraPaymentResponse.ora3ds.acsUrl,transaction));

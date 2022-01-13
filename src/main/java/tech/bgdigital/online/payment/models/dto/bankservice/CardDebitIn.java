@@ -15,6 +15,7 @@ public class CardDebitIn {
     public String callBackUrl;
 
     public String redirectUrl;
+    public String cancelUrl;
 
     public String customerCardholderName;
 

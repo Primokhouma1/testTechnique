@@ -108,6 +108,7 @@ public class OraBankManager implements OraBankServiceInterface {
             transaction.setCallBackRetryNumber(0);
             transaction.setCallbackUrl(cardDebitIn.callBackUrl);
             transaction.setRedirectUrl(cardDebitIn.redirectUrl);
+            transaction.setCancelUrl(cardDebitIn.cancelUrl);
             transaction.setCustomerAddress(cardDebitIn.customerAddress);
             transaction.setStatusCallback(Status.INIT);
           //  transaction.setCallbackJson("");//todo set data callback json
@@ -291,12 +292,17 @@ public class OraBankManager implements OraBankServiceInterface {
         Transaction transaction = transactionRepository.findByTrxRef(token);
         if(transaction==null){
             return  null;
+        }else {
+            if(transaction.getProccess()){
+                return  null;
+            }
         }
         try {
             request3DsAuth.AcsUrl = transactionItemRepository.findByNameAndTransactions(environment.oraAcsUrl,transaction).getValue();
             request3DsAuth.PaReq =transactionItemRepository.findByNameAndTransactions(environment.oraAcsPaReq,transaction).getValue();
             request3DsAuth.MD =transactionItemRepository.findByNameAndTransactions(environment.oraAcsMd,transaction).getValue();
             request3DsAuth.TermUrl =environment.platformUrl +  environment.oraInterceptorUrl3ds + "/" + token;
+            request3DsAuth.proccess =  transaction.getProccess();
         } catch (Exception e) {
             e.printStackTrace();
             return  null;
@@ -337,7 +343,6 @@ public class OraBankManager implements OraBankServiceInterface {
                 if(!resCallback.error ){
                     transaction.setCallbackSentedAt(new Date());
                     transaction.setCallbackSended(true);
-                    transaction.setMessageError("Transaction validé.");
                     transactionRepository.save(transaction);
                     transaction.setStatusCallback(Status.SUCCESS);
                     log.info("SUCCESS CALLBACK");
@@ -349,7 +354,11 @@ public class OraBankManager implements OraBankServiceInterface {
                     transactionRepository.save(transaction);
                     log.info("FAILED CALLBACK");
                 }
+        }else {
+            transaction.setFailedAt(new Date());
         }
+        transaction.setProccess(true);
+        transactionRepository.save(transaction);
         return transaction;
     }
     public InternalResponse<Map<String,Object>> validationPayment(CardDebitIn cardDebitIn,Partner partner){
@@ -367,6 +376,10 @@ public class OraBankManager implements OraBankServiceInterface {
         if(!validatorBean.isUrl(cardDebitIn.redirectUrl)){
             error =true;
             validations.put("redirectUrl","L'URL de redirection n'est pas valide");
+        }
+        if(!validatorBean.isUrl(cardDebitIn.cancelUrl)){
+            error =true;
+            validations.put("cancelUrl","L'URL de d'annulation n'est pas valide");
         }
         if(!validatorBean.isFullName(cardDebitIn.customerCardholderName)){
             error =true;

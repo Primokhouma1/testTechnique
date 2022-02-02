@@ -204,6 +204,10 @@ public class Transaction {
     @Column(name = "redirect_url")
 
     private String redirectUrl;
+    @Lob
+    @Column(name = "cancel_url")
+
+    private String cancelUrl;
 
     public String getRedirectUrl() {
         return redirectUrl;
@@ -598,6 +602,14 @@ public class Transaction {
 
     public void setStatusCallback(String statusCallback) {
         this.statusCallback = statusCallback;
+    }
+
+    public String getCancelUrl() {
+        return cancelUrl;
+    }
+
+    public void setCancelUrl(String cancelUrl) {
+        this.cancelUrl = cancelUrl;
     }
 
     public void setCustomerCardPan(String customerCardPan) {

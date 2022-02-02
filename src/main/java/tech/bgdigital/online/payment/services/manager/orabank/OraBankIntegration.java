@@ -1,4 +1,5 @@
 package tech.bgdigital.online.payment.services.manager.orabank;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -11,6 +12,7 @@ import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.entity.TransactionItem;
 import tech.bgdigital.online.payment.models.repository.PartnerRepository;
 import tech.bgdigital.online.payment.models.repository.TransactionItemRepository;
+import tech.bgdigital.online.payment.models.repository.TransactionRepository;
 import tech.bgdigital.online.payment.services.http.response.InternalResponse;
 import tech.bgdigital.online.payment.services.manager.orabank.dto.*;
 import tech.bgdigital.online.payment.services.properties.Environment;
@@ -27,8 +29,10 @@ public class OraBankIntegration {
     @Autowired
     TransactionItemRepository transactionItemRepository;
     @Autowired
+    TransactionRepository transactionRepository;
+    @Autowired
     PartnerRepository partnerRepository;
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     public InternalResponse<LoginOraOut> login() {
         try {
             log.info("environment.oraAppKey"+environment.oraAppKey);
@@ -143,8 +147,10 @@ public class OraBankIntegration {
                     .body(paramsBody)
                     .asString();
             //log.info("token =>" + token);
-            log.info("oraValidationResponse +>" + response.getBody());
+            log.info("oraValidationResponse Callback +>" + response.getBody());
            // CallbackPartnerResponse callbackPartnerResponse = objectMapper.readValue(response.getBody(), CallbackPartnerResponse.class);
+            transaction.setCallbackJson(response.getBody());
+            transactionRepository.save(transaction);
             return new InternalResponse<>(response.getBody(), false, "Callback sent successful");
         } catch (Exception e) {
             log.info("Error Validation");
@@ -160,7 +166,6 @@ public class OraBankIntegration {
         Map map =
                 objectMapper.convertValue(
                         object, Map.class);
-
 
         StringBuilder qs = new StringBuilder();
         for (Object key : map.keySet()){

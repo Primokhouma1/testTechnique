@@ -5,4 +5,5 @@ public class Request3dsAuth {
     public String PaReq;
     public String TermUrl;
     public String MD;
+    public Boolean proccess;
 }

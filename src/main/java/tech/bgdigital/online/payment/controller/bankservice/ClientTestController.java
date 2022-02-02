@@ -33,7 +33,8 @@ public class ClientTestController {
         "customerPan": "4012001037141112",
         "redirectUrl": "http://localhost:8080/client/success",
         "transactionNumber": "1234322344-2",
-        "customerPhone":"777293282"
+        "customerPhone":"777293282",
+        "cancelUrl": "string",
         }
 
         {
@@ -45,8 +46,22 @@ public class ClientTestController {
   "customerExpiredCard": "2023-12",
   "customerPan": "4222222222222",
   "redirectUrl": "https://pdg-dev.com",
-  "transactionNumber": "1000200012"
+  "transactionNumber": "1000200012",
+  "cancelUrl": "string",
 }
+      {
+            "amount": 100,
+            "callBackUrl": "https://localhost:9090/ipn.php",
+            "customerAddress": "Dakar Sebegal",
+            "customerCardholderName": "Pape Samba",
+            "customerCvv": "883",
+            "customerExpiredCard": "2022-10",
+            "customerPan": "5287350230372585",
+            "redirectUrl": "http://localhost:9090/client/success.php",
+            "transactionNumber": "1000010004",
+            "customerPhone":"777293282",
+            "cancelUrl": "string",
+        }
 
 
 */

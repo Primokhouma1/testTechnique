@@ -152,11 +152,11 @@ public class ServiceController {
             }
 
             if (serviceExist.getState().equals(State.ACTIVED)) {
-                serviceExist.setState(State.ACTIVED);
+                serviceExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                serviceExist.setState(State.DISABLED);
+                serviceExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

@@ -148,11 +148,11 @@ public class PartnersController {
             }
 
             if (partnerExist.getState().equals(State.ACTIVED)) {
-                partnerExist.setState(State.ACTIVED);
+                partnerExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                partnerExist.setState(State.DISABLED);
+                partnerExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

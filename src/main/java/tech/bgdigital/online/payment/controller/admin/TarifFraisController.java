@@ -152,11 +152,11 @@ public class TarifFraisController {
             }
 
             if (tarifFraiExist.getState().equals(State.ACTIVED)) {
-                tarifFraiExist.setState(State.ACTIVED);
+                tarifFraiExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                tarifFraiExist.setState(State.DISABLED);
+                tarifFraiExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

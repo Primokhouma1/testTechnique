@@ -148,11 +148,11 @@ public class AccountStatementController {
             }
 
             if (accountStatementExist.getState().equals(State.ACTIVED)) {
-                accountStatementExist.setState(State.ACTIVED);
+                accountStatementExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                accountStatementExist.setState(State.DISABLED);
+                accountStatementExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

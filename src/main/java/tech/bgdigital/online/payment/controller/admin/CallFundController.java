@@ -147,11 +147,11 @@ public class CallFundController {
             }
 
             if (callFundExist.getState().equals(State.ACTIVED)) {
-                callFundExist.setState(State.ACTIVED);
+                callFundExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                callFundExist.setState(State.DISABLED);
+                callFundExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

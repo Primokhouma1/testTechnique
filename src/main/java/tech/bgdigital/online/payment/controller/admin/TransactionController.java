@@ -23,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/transactions")
 @Api(tags = "Admin transaction",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class TransactionController {
     final TransactionRepository transactionRepository;
     final
@@ -101,11 +102,11 @@ public class TransactionController {
             }
 
             if (transactionExist.getState().equals(State.ACTIVED)) {
-                transactionExist.setState(State.ACTIVED);
+                transactionExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                transactionExist.setState(State.DISABLED);
+                transactionExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

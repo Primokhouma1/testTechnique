@@ -24,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/call-fund")
 @Api(tags = "Admin appel de fonds",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class CallFundController {
     final CallFundRepository callFundRepository;
 
@@ -72,10 +73,10 @@ public class CallFundController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            callFund.setState("ACTIVED");
             callFundRepository.save(callFund);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(callFund, HttpStatus.CREATED.value(), false, msg);
@@ -108,7 +109,7 @@ public class CallFundController {
     public Map<String, Object> updateRegion(@Valid @RequestBody CallFund callFund) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             CallFund callFund1 = callFundRepository.findByIdAndStateNot(callFund.getId(), State.DELETED);

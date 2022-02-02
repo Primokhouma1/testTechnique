@@ -25,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/tarif-frais")
 @Api(tags = "Admin tarif frais",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class TarifFraisController {
     final TarifFraiRepository tarifFraiRepository;
     final
@@ -75,10 +76,10 @@ public class TarifFraisController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            tarifFrai.setState("ACTIVED");
             tarifFraiRepository.save(tarifFrai);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(tarifFrai, HttpStatus.CREATED.value(), false, msg);
@@ -95,7 +96,7 @@ public class TarifFraisController {
     public Map<String, Object> updateRegion(@Valid @RequestBody TarifFrai tarifFrai) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             TarifFrai tarifFrai1 = tarifFraiRepository.findByIdAndStateNot(tarifFrai.getId(), State.DELETED);

@@ -25,12 +25,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/profil")
 @Api(tags = "Admin profil",description = ".")
-public class ProfilController {
+@CrossOrigin(origins = "*", maxAge = 3600)
+
+public class ProfileController {
     final ProfilRepository profilRepository;
     final
     HttpResponseApiInterface httpResponseApi;
 
-    public ProfilController(ProfilRepository profilRepository, HttpResponseApiInterface httpResponseApi) {
+    public ProfileController(ProfilRepository profilRepository, HttpResponseApiInterface httpResponseApi) {
         this.profilRepository = profilRepository;
         this.httpResponseApi = httpResponseApi;
     }
@@ -74,10 +76,10 @@ public class ProfilController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            profil.setState("ACTIVED");
             profilRepository.save(profil);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, msg);
@@ -94,7 +96,7 @@ public class ProfilController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Profil profil) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             Profil profil1 = profilRepository.findByIdAndStateNot(profil.getId(), State.DELETED);
@@ -149,11 +151,11 @@ public class ProfilController {
             }
 
             if (profilExist.getState().equals(State.ACTIVED)) {
-                profilExist.setState(State.ACTIVED);
+                profilExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                profilExist.setState(State.DISABLED);
+                profilExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 

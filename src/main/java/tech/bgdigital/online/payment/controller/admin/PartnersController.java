@@ -27,6 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/partners")
 @Api(tags = "Admin partenaire",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class PartnersController {
     final PartnerRepository partnerRepository;
 
@@ -73,10 +74,10 @@ public class PartnersController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            partner.setState("ACTIVED");
             partnerRepository.save(partner);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(partner, HttpStatus.CREATED.value(), false, msg);
@@ -109,7 +110,7 @@ public class PartnersController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Partner partner) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
                 Partner partner1 = partnerRepository.findByIdAndStateNot(partner.getId(), State.DELETED);

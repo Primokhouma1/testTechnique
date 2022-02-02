@@ -26,6 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/service")
 @Api(tags = "Admin service",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ServiceController {
     final ServiceRepository serviceRepository;
     final
@@ -65,10 +66,10 @@ public class ServiceController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            service.setState("ACTIVED");
             serviceRepository.save(service);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(service, HttpStatus.CREATED.value(), false, msg);
@@ -85,7 +86,7 @@ public class ServiceController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Service service) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             Service service1 = serviceRepository.findByIdAndStateNot(service.getId(), State.DELETED);

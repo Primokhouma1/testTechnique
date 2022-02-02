@@ -25,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/account-statement")
 @Api(tags = "Admin account statement",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class AccountStatementController {
     final AccountStatementRepository accountStatementRepository;
     final
@@ -75,7 +76,7 @@ public class AccountStatementController {
             if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }
-
+            accountStatement.setState("ACTIVED");
             accountStatementRepository.save(accountStatement);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(accountStatement, HttpStatus.CREATED.value(), false, msg);
@@ -108,7 +109,7 @@ public class AccountStatementController {
     public Map<String, Object> updateRegion(@Valid @RequestBody AccountStatement accountStatement) {
 
         try {
-            if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+            if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {
                 AccountStatement accountStatement1 = accountStatementRepository.findByIdAndStateNot(accountStatement.getId(), State.DELETED);

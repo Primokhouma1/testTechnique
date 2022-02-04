@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.CallFund;
+import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.CallFundRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -181,6 +182,23 @@ public class CallFundController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details partner recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String amount) {
+        try {
+
+            List<CallFund> callFund =  callFundRepository.findCallFundByAmount(amount);
+            if (callFund != null) {
+                return httpResponseApi.response(callFund, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet appel n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

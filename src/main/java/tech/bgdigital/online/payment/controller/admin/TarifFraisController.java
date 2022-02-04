@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
+import tech.bgdigital.online.payment.models.entity.CallFund;
 import tech.bgdigital.online.payment.models.entity.Profil;
 import tech.bgdigital.online.payment.models.entity.TarifFrai;
 import tech.bgdigital.online.payment.models.enumeration.State;
@@ -92,7 +93,7 @@ public class TarifFraisController {
 
     @Transactional
     @PutMapping("")
-    @ApiOperation(value = "Modifier  tarifFrais paginés")
+    @ApiOperation(value = "Modifier  tarif frais paginés")
     public Map<String, Object> updateRegion(@Valid @RequestBody TarifFrai tarifFrai) {
 
         try {
@@ -101,7 +102,7 @@ public class TarifFraisController {
             } else {*/
             TarifFrai tarifFrai1 = tarifFraiRepository.findByIdAndStateNot(tarifFrai.getId(), State.DELETED);
             if (tarifFrai1 == null) {
-                return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Ce tarifFrais n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Ce tarif frais n'existe pas.");
             } else {
                 //todo set all value you want to update from accountStatement
                 tarifFrai.setState(tarifFrai.getState());
@@ -117,7 +118,7 @@ public class TarifFraisController {
 
 
     @GetMapping("{id}")
-    @ApiOperation(value = "Voir details tarifFrais paginés")
+    @ApiOperation(value = "Voir details tarif frais paginés")
     public Map<String, Object> show(@PathVariable() Integer id) {
         try {
 
@@ -125,7 +126,7 @@ public class TarifFraisController {
             if (tarifFrai != null) {
                 return httpResponseApi.response(tarifFrai, HttpStatus.CREATED.value(), false, "Donnée disponible.");
             } else {
-                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette région n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Ce tarif frais n'existe pas.");
             }
         } catch (Exception e) {
             return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
@@ -138,7 +139,7 @@ public class TarifFraisController {
      */
     @GetMapping("/state/{id}")
     @Transactional
-    @ApiOperation(value = "Changer etat des tarifFrais paginés")
+    @ApiOperation(value = "Changer etat des tarif frais paginés")
     public Map<String, Object> activeDesactiveEtat(@PathVariable Integer id) {
         String message = "";
         if (id == null) {
@@ -179,13 +180,30 @@ public class TarifFraisController {
 
             TarifFrai tarifFrai = tarifFraiRepository.findByIdAndStateNot(id, State.DELETED);
             if (tarifFrai == null) {
-                return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Ce tarifFrais n'existe pas");
+                return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Ce tarif frais n'existe pas");
             } else {
                 tarifFraiRepository.delete(tarifFrai);
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), false, "Données supprimées avec success");
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details tarif frais recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String state) {
+        try {
+
+            List<TarifFrai> tarifFrais =  tarifFraiRepository.findTarifFraiByState(state);
+            if (tarifFrais != null) {
+                return httpResponseApi.response(tarifFrais, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet tarif frais n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

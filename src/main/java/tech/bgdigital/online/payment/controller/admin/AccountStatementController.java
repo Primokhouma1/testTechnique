@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
+import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.AccountStatementRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -36,7 +37,7 @@ public class AccountStatementController {
     }
 
     @GetMapping("/paginate")
-    @ApiOperation(value = "Liste des relevés de compte paginés")
+    @ApiOperation(value = "Liste accounts paginés")
     public ResponseEntity<Map<String, Object>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size
@@ -57,7 +58,7 @@ public class AccountStatementController {
     }
 
     @GetMapping("")
-    @ApiOperation(value = "Liste des relevés de compte plat")
+    @ApiOperation(value = "Liste account")
     public Map<String, Object> index() {
         try {
             return httpResponseApi.response(accountStatementRepository.findAllByStateNot(State.DELETED), HttpStatus.CREATED.value(), false, "Données disponibles");
@@ -68,7 +69,7 @@ public class AccountStatementController {
     }
 
     @PostMapping("")
-    @ApiOperation(value = "Ajouter relevés de compte")
+    @ApiOperation(value = "Ajouter account")
     public Map<String, Object> store(@Valid @RequestBody AccountStatement accountStatement) {
 
         try {
@@ -88,7 +89,7 @@ public class AccountStatementController {
     }
 
     @GetMapping("{id}")
-    @ApiOperation(value = "Voir details relevé de compte paginés")
+    @ApiOperation(value = "Voir details account paginés")
     public Map<String, Object> show(@PathVariable() Integer id) {
         try {
 
@@ -105,7 +106,7 @@ public class AccountStatementController {
 
     @Transactional
     @PutMapping("")
-    @ApiOperation(value = "Modifier  relevé de compte paginés")
+    @ApiOperation(value = "Modifier saccount paginés")
     public Map<String, Object> updateRegion(@Valid @RequestBody AccountStatement accountStatement) {
 
         try {
@@ -114,7 +115,7 @@ public class AccountStatementController {
             } else {
                 AccountStatement accountStatement1 = accountStatementRepository.findByIdAndStateNot(accountStatement.getId(), State.DELETED);
                 if (accountStatement1 == null) {
-                    return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Cette région n'existe pas.");
+                    return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Cet account n'existe pas.");
                 } else {
                     //todo set all value you want to update from accountStatement
                     accountStatement.setState(accountStatement.getState());
@@ -168,14 +169,14 @@ public class AccountStatementController {
      * modification state a DELETED
      */
     @DeleteMapping("{id}")
-    @ApiOperation(value = "Supprimer les relevés de compte paginés")
+    @ApiOperation(value = "Supprimer accounts paginés")
     @Transactional
     public Map<String, Object> delete(@PathVariable Integer id) {
         try {
 
             AccountStatement accountStatement = accountStatementRepository.findByIdAndStateNot(id, State.DELETED);
             if (accountStatement == null) {
-                return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Cette région n'existe pas");
+                return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Cet account n'existe pas");
             } else {
                 accountStatementRepository.delete(accountStatement);
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), false, "Données supprimé avec success");
@@ -185,4 +186,20 @@ public class AccountStatementController {
         }
     }
 
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details account recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String amount) {
+        try {
+
+            List<AccountStatement> accountStatement =  accountStatementRepository.findAccountStatementByAmount(amount);
+            if (accountStatement != null) {
+                return httpResponseApi.response(accountStatement, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet account n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
+        }
+    }
 }

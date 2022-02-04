@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
+import tech.bgdigital.online.payment.models.entity.Profil;
 import tech.bgdigital.online.payment.models.entity.Service;
 
 import java.util.List;
@@ -17,4 +18,5 @@ public interface ServiceRepository extends JpaRepository<Service, Integer> {
    Page<Service> findAllByStateIsNot(String state, Pageable pageable);
    List<Service> findAllByStateNot(String state);
    Service findByIdAndStateNot(Integer id, String state);
+   List<Service> findProfilsByNameOrCode(String name , String code);
 }

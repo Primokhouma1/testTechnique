@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Profil;
+import tech.bgdigital.online.payment.models.entity.User;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.ProfilRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -185,6 +186,24 @@ public class ProfileController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details profil recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String name) {
+        try {
+
+            List<Profil> profil =  profilRepository.findProfilsByName(name);
+            if (profil != null) {
+                return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet profil n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

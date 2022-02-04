@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.models.entity.CallFund;
+import tech.bgdigital.online.payment.models.entity.TarifFrai;
 import tech.bgdigital.online.payment.models.entity.Transaction;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.TransactionRepository;
@@ -75,7 +76,7 @@ public class TransactionController {
             if (transaction != null) {
                 return httpResponseApi.response(transaction, HttpStatus.CREATED.value(), false, "Donnée disponible.");
             } else {
-                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette région n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette transaction n'existe pas.");
             }
         } catch (Exception e) {
             return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
@@ -112,6 +113,23 @@ public class TransactionController {
 
             transactionRepository.save(transactionExist);
             return httpResponseApi.response(transactionExist, HttpStatus.CREATED.value(), false, message);
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details transaction recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String amount) {
+        try {
+
+            List<Transaction> transaction =  transactionRepository.findTransactionByAmountTrx(amount);
+            if (transaction != null) {
+                return httpResponseApi.response(transaction, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette transaction n'existe pas.");
+            }
         } catch (Exception e) {
             return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }

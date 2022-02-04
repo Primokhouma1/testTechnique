@@ -70,16 +70,19 @@ public class UserController {
         }
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/search")
     @ApiOperation(value = "Voir details user paginés")
-    public Map<String, Object> show(@PathVariable() Integer id) {
+    public Map<String, Object> show(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
         try {
 
-            User user = userRepository.findByIdAndStateNot(id, State.DELETED);
+            List<User> user =  userRepository.findUsersByEmailOrFirstNameOrLastName(email,firstName,lastName);
             if (user != null) {
                 return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Donnée disponible.");
             } else {
-                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette région n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet utilisateur n'existe pas.");
             }
         } catch (Exception e) {
             return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
@@ -149,20 +152,20 @@ public class UserController {
     @Transactional
     @PutMapping("")
     @ApiOperation(value = "Modifier  user paginé")
-    public Map<String, Object> updateRegion(@Valid @RequestBody Profil profil) {
+    public Map<String, Object> updateRegion(@Valid @RequestBody User user) {
 
         try {
            /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
-            User user1 = userRepository.findByIdAndStateNot(profil.getId(), State.DELETED);
+            User user1 = userRepository.findByIdAndStateNot(user.getId(), State.DELETED);
             if (user1 == null) {
                 return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Ce user n'existe pas.");
             } else {
                 //todo set all value you want to update from accountStatement
-                profil.setState(profil.getState());
+                user.setState(user.getState());
                 userRepository.save(user1);
-                return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, "Données mises à jour avec succés");
+                return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Données mises à jour avec succés");
             }
             //}
 

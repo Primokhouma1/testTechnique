@@ -18,4 +18,5 @@ public interface TarifFraiRepository extends JpaRepository<TarifFrai, Integer> {
     Page<TarifFrai> findAllByStateIsNot(String state, Pageable pageable);
     List<TarifFrai> findAllByStateNot(String state);
     TarifFrai findByIdAndStateNot(Integer id, String state);
+    List<TarifFrai> findTarifFraiByState(String state);
 }

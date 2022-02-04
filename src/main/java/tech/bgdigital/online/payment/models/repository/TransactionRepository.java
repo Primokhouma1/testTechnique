@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
 import tech.bgdigital.online.payment.models.entity.Partner;
+import tech.bgdigital.online.payment.models.entity.TarifFrai;
 import tech.bgdigital.online.payment.models.entity.Transaction;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
    Page<Transaction> findAllByStateIsNot(String state, Pageable pageable);
    List<Transaction> findAllByStateNot(String state);
    Transaction findByIdAndStateNot(Integer id, String state);
+   List<Transaction> findTransactionByAmountTrx(String amount_trx);
 }

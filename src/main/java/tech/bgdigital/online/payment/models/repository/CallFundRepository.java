@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
 import tech.bgdigital.online.payment.models.entity.CallFund;
 import tech.bgdigital.online.payment.models.entity.Partner;
+import tech.bgdigital.online.payment.models.entity.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,5 @@ public interface CallFundRepository extends JpaRepository<CallFund, Integer> {
     Page<CallFund> findAllByStateIsNot(String state, Pageable pageable);
     CallFund findByIdAndStateNot(Integer id, String state);
     List<CallFund> findAllByStateNot(String state);
+    List<CallFund> findCallFundByAmount(String amount);
 }

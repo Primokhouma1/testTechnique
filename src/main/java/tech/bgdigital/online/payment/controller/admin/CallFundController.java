@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.CallFund;
+import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.CallFundRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/call-fund")
 @Api(tags = "Admin appel de fonds",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class CallFundController {
     final CallFundRepository callFundRepository;
 
@@ -72,10 +74,10 @@ public class CallFundController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            callFund.setState("ACTIVED");
             callFundRepository.save(callFund);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(callFund, HttpStatus.CREATED.value(), false, msg);
@@ -108,7 +110,7 @@ public class CallFundController {
     public Map<String, Object> updateRegion(@Valid @RequestBody CallFund callFund) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             CallFund callFund1 = callFundRepository.findByIdAndStateNot(callFund.getId(), State.DELETED);
@@ -146,11 +148,11 @@ public class CallFundController {
             }
 
             if (callFundExist.getState().equals(State.ACTIVED)) {
-                callFundExist.setState(State.ACTIVED);
+                callFundExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                callFundExist.setState(State.DISABLED);
+                callFundExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 
@@ -180,6 +182,23 @@ public class CallFundController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details partner recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String amount) {
+        try {
+
+            List<CallFund> callFund =  callFundRepository.findCallFundByAmount(amount);
+            if (callFund != null) {
+                return httpResponseApi.response(callFund, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet appel n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

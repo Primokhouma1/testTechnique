@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
 import tech.bgdigital.online.payment.models.entity.Partner;
+import tech.bgdigital.online.payment.models.entity.Profil;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +20,5 @@ public interface PartnerRepository extends JpaRepository<Partner, Integer> {
  Optional<Partner> findById(Integer id);
  Page<Partner> findAllByStateIsNot(String state, Pageable pageable);
  Partner findByIdAndStateNot(Integer id, String state);
+ List<Partner> findProfilsByName(String name);
 }

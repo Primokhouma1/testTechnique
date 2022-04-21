@@ -2,11 +2,14 @@ package tech.bgdigital.online.payment.controller.admin;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
@@ -17,10 +20,7 @@ import tech.bgdigital.online.payment.models.repository.UserRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin/user")
@@ -30,7 +30,9 @@ public class UserController {
     final UserRepository userRepository;
     final
     HttpResponseApiInterface httpResponseApi;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    private Date currrent = new Date();
     public UserController(UserRepository userRepository, HttpResponseApiInterface httpResponseApi) {
         this.userRepository = userRepository;
         this.httpResponseApi = httpResponseApi;
@@ -68,16 +70,19 @@ public class UserController {
         }
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/search")
     @ApiOperation(value = "Voir details user paginés")
-    public Map<String, Object> show(@PathVariable() Integer id) {
+    public Map<String, Object> show(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
         try {
 
-            User user = userRepository.findByIdAndStateNot(id, State.DELETED);
+            List<User> user =  userRepository.findUsersByEmailOrFirstNameOrLastName(email,firstName,lastName);
             if (user != null) {
                 return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Donnée disponible.");
             } else {
-                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cette région n'existe pas.");
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet utilisateur n'existe pas.");
             }
         } catch (Exception e) {
             return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
@@ -99,16 +104,16 @@ public class UserController {
         try {
 
             User userExist = userRepository.findByIdAndStateNot(id, State.DELETED);
-            if ((userExist) == null) {
+            if (userExist == null) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "Cet Objet n'existe pas.");
             }
 
             if (userExist.getState().equals(State.ACTIVED)) {
-                userExist.setState(State.ACTIVED);
+                userExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                userExist.setState(State.DISABLED);
+                userExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 
@@ -125,11 +130,16 @@ public class UserController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            System.out.println("user"+user);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            //System.out.println("user"+user);
+            user.setState("ACTIVED");
+           // user.setCreatedAt(Date());
             userRepository.save(user);
+
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, msg);
         } catch (Exception e) {
@@ -142,20 +152,20 @@ public class UserController {
     @Transactional
     @PutMapping("")
     @ApiOperation(value = "Modifier  user paginé")
-    public Map<String, Object> updateRegion(@Valid @RequestBody Profil profil) {
+    public Map<String, Object> updateRegion(@Valid @RequestBody User user) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
-            User user1 = userRepository.findByIdAndStateNot(profil.getId(), State.DELETED);
+            User user1 = userRepository.findByIdAndStateNot(user.getId(), State.DELETED);
             if (user1 == null) {
                 return httpResponseApi.response(null, HttpStatus.CONFLICT.value(), true, "Ce user n'existe pas.");
             } else {
                 //todo set all value you want to update from accountStatement
-                profil.setState(profil.getState());
+                user.setState(user.getState());
                 userRepository.save(user1);
-                return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, "Données mises à jour avec succés");
+                return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Données mises à jour avec succés");
             }
             //}
 

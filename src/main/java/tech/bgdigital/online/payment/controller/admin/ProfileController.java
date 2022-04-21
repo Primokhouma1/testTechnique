@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Profil;
+import tech.bgdigital.online.payment.models.entity.User;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.ProfilRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -25,12 +26,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/profil")
 @Api(tags = "Admin profil",description = ".")
-public class ProfilController {
+@CrossOrigin(origins = "*", maxAge = 3600)
+
+public class ProfileController {
     final ProfilRepository profilRepository;
     final
     HttpResponseApiInterface httpResponseApi;
 
-    public ProfilController(ProfilRepository profilRepository, HttpResponseApiInterface httpResponseApi) {
+    public ProfileController(ProfilRepository profilRepository, HttpResponseApiInterface httpResponseApi) {
         this.profilRepository = profilRepository;
         this.httpResponseApi = httpResponseApi;
     }
@@ -74,10 +77,10 @@ public class ProfilController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            profil.setState("ACTIVED");
             profilRepository.save(profil);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, msg);
@@ -94,7 +97,7 @@ public class ProfilController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Profil profil) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             Profil profil1 = profilRepository.findByIdAndStateNot(profil.getId(), State.DELETED);
@@ -149,11 +152,11 @@ public class ProfilController {
             }
 
             if (profilExist.getState().equals(State.ACTIVED)) {
-                profilExist.setState(State.ACTIVED);
+                profilExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                profilExist.setState(State.DISABLED);
+                profilExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 
@@ -183,6 +186,24 @@ public class ProfilController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details profil recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String name) {
+        try {
+
+            List<Profil> profil =  profilRepository.findProfilsByName(name);
+            if (profil != null) {
+                return httpResponseApi.response(profil, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet profil n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

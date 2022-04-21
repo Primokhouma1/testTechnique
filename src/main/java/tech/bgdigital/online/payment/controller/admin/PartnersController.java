@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 import tech.bgdigital.online.payment.models.entity.AccountStatement;
 import tech.bgdigital.online.payment.models.entity.Partner;
+import tech.bgdigital.online.payment.models.entity.Profil;
 import tech.bgdigital.online.payment.models.enumeration.State;
 import tech.bgdigital.online.payment.models.repository.PartnerRepository;
 import tech.bgdigital.online.payment.services.http.response.HttpResponseApiInterface;
@@ -27,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/partners")
 @Api(tags = "Admin partenaire",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class PartnersController {
     final PartnerRepository partnerRepository;
 
@@ -73,10 +75,10 @@ public class PartnersController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            partner.setState("ACTIVED");
             partnerRepository.save(partner);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(partner, HttpStatus.CREATED.value(), false, msg);
@@ -109,7 +111,7 @@ public class PartnersController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Partner partner) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
                 Partner partner1 = partnerRepository.findByIdAndStateNot(partner.getId(), State.DELETED);
@@ -133,7 +135,7 @@ public class PartnersController {
      */
     @GetMapping("/state/{id}")
     @Transactional
-    @ApiOperation(value = "Changer etat des relevés de compte paginés")
+    @ApiOperation(value = "Changer etat des partenaire")
     public Map<String, Object> activeDesactiveEtat(@PathVariable Integer id) {
         String message = "";
         if (id == null) {
@@ -147,11 +149,11 @@ public class PartnersController {
             }
 
             if (partnerExist.getState().equals(State.ACTIVED)) {
-                partnerExist.setState(State.ACTIVED);
+                partnerExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                partnerExist.setState(State.DISABLED);
+                partnerExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 
@@ -167,7 +169,7 @@ public class PartnersController {
      * modification state a DELETED
      */
     @DeleteMapping("{id}")
-    @ApiOperation(value = "Supprimer les relevés de compte paginés")
+    @ApiOperation(value = "Supprimer les  partenaire")
     @Transactional
     public Map<String, Object> delete(@PathVariable Integer id) {
         try {
@@ -181,6 +183,23 @@ public class PartnersController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details partner recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String name) {
+        try {
+
+            List<Partner> partner =  partnerRepository.findProfilsByName(name);
+            if (partner != null) {
+                return httpResponseApi.response(partner, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet partenaire n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

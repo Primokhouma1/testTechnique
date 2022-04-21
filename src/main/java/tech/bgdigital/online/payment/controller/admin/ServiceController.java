@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.bgdigital.online.payment.exceptions.NotDeleteEntityException;
 
+import tech.bgdigital.online.payment.models.entity.Partner;
 import tech.bgdigital.online.payment.models.entity.Profil;
 import tech.bgdigital.online.payment.models.entity.Service;
 import tech.bgdigital.online.payment.models.enumeration.State;
@@ -26,6 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/service")
 @Api(tags = "Admin service",description = ".")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ServiceController {
     final ServiceRepository serviceRepository;
     final
@@ -65,10 +67,10 @@ public class ServiceController {
 
         try {
 
-         /*   if (accountStatement.getAmount().compareTo(new BigDecimal('0')) < 0) {
+         /*   if (accountStatement.getAmount().compareTo(new BigDecimal("0")) < 0) {
                 return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, "un ou plusieurs champs incorrects.");
             }*/
-
+            service.setState("ACTIVED");
             serviceRepository.save(service);
             String msg = "Données enregistrée avec succés";
             return httpResponseApi.response(service, HttpStatus.CREATED.value(), false, msg);
@@ -85,7 +87,7 @@ public class ServiceController {
     public Map<String, Object> updateRegion(@Valid @RequestBody Service service) {
 
         try {
-           /* if (accountStatement.getAmount().compareTo(new BigDecimal('0')) > 0) {
+           /* if (accountStatement.getAmount().compareTo(new BigDecimal("0")) > 0) {
                 return httpResponseApi.response(null, HttpStatus.NO_CONTENT.value(), true, "Paramétre envoyé invalide");
             } else {*/
             Service service1 = serviceRepository.findByIdAndStateNot(service.getId(), State.DELETED);
@@ -137,7 +139,7 @@ public class ServiceController {
      */
     @GetMapping("/state/{id}")
     @Transactional
-    @ApiOperation(value = "Changer etat des profils paginés")
+    @ApiOperation(value = "Changer etat des services paginés")
     public Map<String, Object> activeDesactiveEtat(@PathVariable Integer id) {
         String message = "";
         if (id == null) {
@@ -151,11 +153,11 @@ public class ServiceController {
             }
 
             if (serviceExist.getState().equals(State.ACTIVED)) {
-                serviceExist.setState(State.ACTIVED);
+                serviceExist.setState(State.DISABLED);
                 message = "etat activé avec succéss";
 
             } else {
-                serviceExist.setState(State.DISABLED);
+                serviceExist.setState(State.ACTIVED);
                 message = "etat desactivé avec succéss";
             }
 
@@ -171,7 +173,7 @@ public class ServiceController {
      * modification state a DELETED
      */
     @DeleteMapping("{id}")
-    @ApiOperation(value = "Supprimer profils paginés")
+    @ApiOperation(value = "Supprimer services paginés")
     @Transactional
     public Map<String, Object> delete(@PathVariable Integer id) {
         try {
@@ -185,6 +187,24 @@ public class ServiceController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details service recherché")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name) {
+        try {
+
+            List<Service> service =  serviceRepository.findProfilsByNameOrCode(name, code);
+            if (service != null) {
+                return httpResponseApi.response(service, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet service n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 }

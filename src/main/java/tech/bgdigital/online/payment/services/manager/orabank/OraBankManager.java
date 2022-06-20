@@ -336,6 +336,9 @@ public class OraBankManager implements OraBankServiceInterface {
                 }else {
                     transaction.setMessageError("Failed card debit");
                 }
+                if (!internalResponse.response.ora3ds.summaryText.isEmpty()) {
+                    transaction.setMessageAuth3ds(internalResponse.response.ora3ds.summaryText);
+                }
                 transactionRepository.save(transaction);
             }
             //Callback

@@ -70,15 +70,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/search")
+    @GetMapping("{id}")
     @ApiOperation(value = "Voir details user paginés")
-    public Map<String, Object> show(
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName) {
+    public Map<String, Object> show(@PathVariable() Integer id) {
         try {
 
-            List<User> user =  userRepository.findUsersByEmailOrFirstNameOrLastName(email,firstName,lastName);
+            User user = userRepository.findByIdAndStateNot(id, State.DELETED);
             if (user != null) {
                 return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Donnée disponible.");
             } else {
@@ -194,6 +191,25 @@ public class UserController {
             }
         } catch(Exception e) {
             throw new NotDeleteEntityException(null,HttpStatus.BAD_REQUEST.value(),true,"Cette entité est lié à d'autre(s), veuillez les supprimer d'abord.");
+        }
+    }
+
+    @GetMapping("/search")
+    @ApiOperation(value = "Voir details user paginés")
+    public Map<String, Object> showRecherche(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName) {
+        try {
+
+            List<User> user =  userRepository.findUsersByEmailOrFirstNameOrLastName(email,firstName,lastName);
+            if (user != null) {
+                return httpResponseApi.response(user, HttpStatus.CREATED.value(), false, "Donnée disponible.");
+            } else {
+                return httpResponseApi.response(null, HttpStatus.NOT_FOUND.value(), true, "Cet utilisateur n'existe pas.");
+            }
+        } catch (Exception e) {
+            return httpResponseApi.response(null, HttpStatus.BAD_REQUEST.value(), true, e.getMessage());
         }
     }
 

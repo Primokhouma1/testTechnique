@@ -72,7 +72,7 @@ public class TarifFraisController {
 
 
     @PostMapping("")
-    @ApiOperation(value = "Ajouter tariFrais")
+    @ApiOperation(value = "Ajouter tarif Frais")
     public Map<String, Object> store(@Valid @RequestBody TarifFrai tarifFrai) {
 
         try {

@@ -10,6 +10,7 @@ public class CallbackPartnerRequest {
     public String cardType;
     public String customerName;
     public String customerPhone;
+    public String messageError;
     public String appKey;
     public String secretKey;
 }

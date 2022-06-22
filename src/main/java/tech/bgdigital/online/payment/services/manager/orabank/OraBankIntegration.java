@@ -135,6 +135,7 @@ public class OraBankIntegration {
             callbackPartnerRequest.cardType =transaction.getCustomerCardType();
             callbackPartnerRequest.customerName =transaction.getCustomerCardCardholderName();
             callbackPartnerRequest.customerPhone =transaction.getCustomerPhone();
+            callbackPartnerRequest.messageError = transaction.getMessageAuth3ds();
             Partner partner = transaction.getPartners();
 //            callbackPartnerRequest.appKey = partnerRepository.findById(transaction.getPartne);
 //            callbackPartnerRequest.secretKey ="";

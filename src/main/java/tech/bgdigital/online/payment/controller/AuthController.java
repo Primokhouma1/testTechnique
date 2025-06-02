@@ -7,15 +7,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import tech.bgdigital.online.payment.models.entity.User;
 import tech.bgdigital.online.payment.models.repository.UserRepository;
 import tech.bgdigital.online.payment.models.security.jwt.JwtUtils;
 import tech.bgdigital.online.payment.models.security.services.UserDetailsImpl;
 import tech.bgdigital.online.payment.payload.request.LoginRequest;
+import tech.bgdigital.online.payment.payload.request.SignupRequest;
 import tech.bgdigital.online.payment.payload.response.JwtResponse;
+import tech.bgdigital.online.payment.payload.response.MessageResponse;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -35,10 +36,10 @@ public class AuthController {
 	@Autowired
 	JwtUtils jwtUtils;
 
-	@PostMapping("/signin")
+	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-	 	Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+	 	Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
@@ -46,9 +47,34 @@ public class AuthController {
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
 		return ResponseEntity.ok(new JwtResponse(jwt,
-												 userDetails.getId(),
 												 userDetails.getPassword(),
 												 userDetails.getEmail()));
 	}
+
+	@PostMapping("/register")
+	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+			return ResponseEntity
+					.badRequest()
+					.body(new MessageResponse("Error: Username is already taken!"));
+		}
+
+		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+			return ResponseEntity
+					.badRequest()
+					.body(new MessageResponse("Error: Email is already in use!"));
+		}
+
+		// Créer le nouvel utilisateur
+		User user = new User();
+		user.setUsername(signUpRequest.getUsername());
+		user.setEmail(signUpRequest.getEmail());
+		user.setPassword(encoder.encode(signUpRequest.getPassword()));
+
+		userRepository.save(user);
+
+		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+	}
+
 
 }

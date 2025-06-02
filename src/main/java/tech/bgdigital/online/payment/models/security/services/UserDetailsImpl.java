@@ -1,11 +1,9 @@
 package tech.bgdigital.online.payment.models.security.services;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,32 +11,31 @@ import tech.bgdigital.online.payment.models.entity.User;
 
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
-	private User user;
 
-	private Long id;
-
-	private String first_name;
-
-	private String email;
+	private final Integer id;
+	private final String username;
+	private final String email;
 
 	@JsonIgnore
-	private String password;
+	private final String password;
 
-	private Collection<? extends GrantedAuthority> authorities;
+	private final Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl (String email, String password) {
+	public UserDetailsImpl(Integer id, String username, String email, String password) {
 		this.id = id;
+		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.authorities = authorities;
+		this.authorities = Collections.emptyList(); // Pas de rôles pour l'instant
 	}
+
 	public static UserDetailsImpl build(User user) {
-
-
 		return new UserDetailsImpl(
+				user.getId(),
+				user.getUsername(),
 				user.getEmail(),
 				user.getPassword()
-				);
+		);
 	}
 
 	@Override
@@ -46,7 +43,7 @@ public class UserDetailsImpl implements UserDetails {
 		return authorities;
 	}
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -59,13 +56,9 @@ public class UserDetailsImpl implements UserDetails {
 		return password;
 	}
 
-
-	public String getFirst_name() {
-		return null;
-	}
 	@Override
 	public String getUsername() {
-		return null;
+		return username;
 	}
 
 	@Override
@@ -87,5 +80,4 @@ public class UserDetailsImpl implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-
 }

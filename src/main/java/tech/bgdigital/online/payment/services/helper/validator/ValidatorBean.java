@@ -3,8 +3,6 @@ package tech.bgdigital.online.payment.services.helper.validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import tech.bgdigital.online.payment.models.entity.Partner;
-import tech.bgdigital.online.payment.models.repository.TransactionRepository;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -15,8 +13,6 @@ import java.util.regex.Pattern;
 @Component
 @Slf4j
 public class ValidatorBean {
-    @Autowired
-    TransactionRepository transactionRepository;
     public boolean isAmount(BigDecimal amount){
         log.info("amount=>"+amount +"=>"+ amount.compareTo(new BigDecimal("1")));
         return amount.compareTo(new BigDecimal("1")) > 0;
@@ -120,11 +116,5 @@ public class ValidatorBean {
         log.info(year);
         log.info(month);
         return date1.compareTo(date2) >= 0;
-    }
-    public boolean isExisteTransactionNumber(String trxNumer, Partner partner){
-        return transactionRepository.findTransactionByPartenerTrxRefAndPartners(trxNumer,partner) != null;
-    }
-    public boolean isValidPhone(String phone){
-        return phone != null && phone.length() >= 9 && this.valideListNumberString(List.of(phone.split("")));
     }
 }

@@ -26,7 +26,6 @@ public class SwaggerConfig {
           apiKeys.add(bearerJwt());
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("tech.bgdigital.online.payment"))
                 .paths(PathSelectors.any())
                 .build()
                 .securityContexts(Collections.singletonList(securityContext()))
@@ -37,11 +36,11 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Online Payment Service",
-                "Online Payment Service",
+                "Test technique",
+                "Test technique by CheikhFall KHOUMA",
                 "API 1.0",
                 "Terms of service",
-                new Contact("PSN", "https://bgdigit-all.com", "paesambandour@bgdigit-all.com"),
+                new Contact("PSN", "", "cfkhouma@gmail.com"),
                 "License of API", "API license URL", Collections.emptyList());
     }
 

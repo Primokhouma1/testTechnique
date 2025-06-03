@@ -93,6 +93,13 @@
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
         </dependency><!--security--><!--THERMALLY-->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version> <!-- tu peux adapter selon les versions -->
+        </dependency>
+
     </dependencies>
 
     <build>
